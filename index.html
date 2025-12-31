@@ -2,19 +2,23 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
 <title>PFF PREMIUM</title>
 
-<link rel="icon" type="image/png" href="logo.png">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-title" content="PFF PREMIUM">
 
 <link rel="manifest" id="my-manifest">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="logo.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
@@ -26,206 +30,115 @@
         --bg-color: #f3f4f6;
     }
 
-    * {
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    /* 3. HTML BACKGROUND FIX: Ensures the background behind the notch is white */
+    html {
+        background-color: #ffffff;
     }
 
     body {
-        margin: 0;
-        padding: 0;
+        margin: 0; padding: 0;
         font-family: 'Inter', sans-serif;
         background: var(--bg-color);
         color: var(--text-color);
-        height: 100vh;
-        height: 100dvh;
-        display: flex;
-        flex-direction: column;
+        height: 100vh; width: 100vw;
+        /* Handle Notch Safe Areas */
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
         overflow: hidden;
-        user-select: none;
-        -webkit-user-select: none;
-        overscroll-behavior-y: none;
+        display: flex; flex-direction: column;
+        user-select: none; -webkit-user-select: none;
     }
 
-    /* --- Splash Screen (Updated: No Logo, Text Only) --- */
+    /* --- Splash Screen --- */
     #splash-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 100%;
         background: #ffffff;
         z-index: 9999;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 0.5s ease-out, visibility 0.5s;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        transition: opacity 0.4s ease-out;
     }
 
-    /* Loding bar removed as per request to keep it clean */
-    
     .splash-text {
-        font-weight: 800;
-        font-size: 24px;
+        font-size: 26px; font-weight: 800;
         color: var(--primary-color);
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        animation: pulseText 1.5s infinite alternate;
+        letter-spacing: 2px; text-transform: uppercase;
+        animation: pulse 1.5s infinite;
     }
+    @keyframes pulse { 0% {opacity:0.7; transform:scale(0.98);} 100% {opacity:1; transform:scale(1.02);} }
 
-    @keyframes pulseText {
-        from { opacity: 0.6; transform: scale(0.98); }
-        to { opacity: 1; transform: scale(1); }
-    }
-
-    /* --- Top Bar (App Header) --- */
+    /* --- Top Bar (Seamless with Notch) --- */
     .top-bar {
         height: var(--header-height);
         background: var(--header-bg);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        /* Remove top border so it blends with status bar */
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        display: flex; align-items: center; justify-content: space-between;
         padding: 0 16px;
-        padding-top: env(safe-area-inset-top); 
-        height: calc(var(--header-height) + env(safe-area-inset-top));
         z-index: 100;
         position: relative;
     }
 
-    .title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #111;
-    }
+    .title { font-size: 18px; font-weight: 700; color: #111; }
 
-    /* Animated Menu Button */
     .menu-btn {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        font-size: 20px;
-        color: #333;
-        transition: transform 0.1s;
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%; font-size: 20px; color: #333;
         cursor: pointer;
     }
-    
-    .menu-btn:active {
-        background: rgba(0,0,0,0.05);
-        transform: scale(0.90);
-    }
-
-    /* --- Dropdown Menu --- */
-    .menu-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.3);
-        z-index: 998;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s;
-        backdrop-filter: blur(2px);
-    }
-    
-    .menu-backdrop.active {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .menu {
-        position: absolute;
-        top: calc(var(--header-height) + env(safe-area-inset-top) + 10px);
-        right: 15px;
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-        width: 180px;
-        transform-origin: top right;
-        transform: scale(0.8);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        z-index: 1000;
-        overflow: hidden;
-    }
-
-    .menu.show {
-        transform: scale(1);
-        opacity: 1;
-        visibility: visible;
-    }
-
-    .menu-item {
-        padding: 14px 20px;
-        font-size: 15px;
-        font-weight: 500;
-        color: #374151;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        border-bottom: 1px solid #f3f4f6;
-        transition: background 0.2s;
-    }
-
-    .menu-item:last-child {
-        border-bottom: none;
-    }
-
-    .menu-item:active {
-        background: #eff6ff;
-        color: var(--primary-color);
-    }
-    
-    .menu-item i {
-        color: #6b7280;
-        width: 20px;
-        text-align: center;
-    }
+    .menu-btn:active { background: rgba(0,0,0,0.05); }
 
     /* --- Content Area --- */
     .content-wrapper {
-        flex: 1;
-        position: relative;
-        width: 100%;
-        background: #fff;
+        flex: 1; position: relative; width: 100%; background: #fff;
     }
+    iframe { width: 100%; height: 100%; border: none; display: block; }
 
-    iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-        display: block;
+    /* --- Menu --- */
+    .menu-backdrop {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4); z-index: 998;
+        opacity: 0; visibility: hidden; transition: opacity 0.3s;
+        backdrop-filter: blur(3px);
     }
+    .menu-backdrop.active { opacity: 1; visibility: visible; }
 
-    /* --- App-style Loader --- */
-    .app-loader {
+    .menu {
         position: absolute;
-        top: 50%;
-        left: 50%;
+        top: calc(var(--header-height) + 10px); /* Adjusted for simple layout */
+        right: 16px;
+        background: #fff; border-radius: 16px;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        width: 200px;
+        transform: scale(0.9); opacity: 0; visibility: hidden;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 1000; overflow: hidden;
+    }
+    .menu.show { transform: scale(1); opacity: 1; visibility: visible; }
+
+    .menu-item {
+        padding: 16px 20px; font-size: 16px; font-weight: 500; color: #374151;
+        display: flex; align-items: center; gap: 14px;
+        border-bottom: 1px solid #f9fafb;
+    }
+    .menu-item:active { background: #eff6ff; color: var(--primary-color); }
+    .menu-item i { width: 24px; text-align: center; color: #9ca3af; }
+    .menu-item:active i { color: var(--primary-color); }
+
+    /* --- Loader --- */
+    .app-loader {
+        position: absolute; top: 50%; left: 50%;
         transform: translate(-50%, -50%);
-        width: 40px;
-        height: 40px;
-        border: 4px solid #e5e7eb;
-        border-top-color: var(--primary-color);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-        z-index: 50;
-        display: none;
+        width: 40px; height: 40px;
+        border: 3px solid #e5e7eb; border-top-color: var(--primary-color);
+        border-radius: 50%; animation: spin 0.8s linear infinite;
+        display: none; z-index: 50;
     }
-
-    @keyframes spin {
-        to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 </style>
 </head>
 
@@ -246,16 +159,13 @@
 
 <div class="menu" id="menu">
     <div class="menu-item" onclick="loadApp('orders')">
-        <i class="fa-solid fa-clipboard-list"></i>
-        <span>Orders</span>
+        <i class="fa-solid fa-clipboard-list"></i> <span>Orders</span>
     </div>
     <div class="menu-item" onclick="loadApp('inventory')">
-        <i class="fa-solid fa-boxes-stacked"></i>
-        <span>Inventory</span>
+        <i class="fa-solid fa-boxes-stacked"></i> <span>Inventory</span>
     </div>
     <div class="menu-item" onclick="loadApp('draft')">
-        <i class="fa-solid fa-file-pen"></i>
-        <span>Draft</span>
+        <i class="fa-solid fa-file-pen"></i> <span>Draft</span>
     </div>
 </div>
 
@@ -265,14 +175,15 @@
 </div>
 
 <script>
-    // --- 1. SINGLE FILE PWA CONFIGURATION ---
+    // --- MANIFEST CONFIG (Using Standalone for Best Notch Support) ---
+    // 'standalone' allows us to color the status bar. 'fullscreen' often forces black.
     
-    // Manifest Setup (UPDATED: Name & Fullscreen)
-    const manifestData = {
-        "name": "PFF PREMIUM",       // Full App Name for Install
-        "short_name": "PFF PREMIUM", // Name under the icon
-        "start_url": window.location.href,
-        "display": "fullscreen",     // UPDATED: Forces full screen (hides status bar)
+    const manifest = {
+        "name": "PFF PREMIUM",
+        "short_name": "PFF PREMIUM",
+        "start_url": window.location.href + "?v=2",
+        "id": "/?pff_premium_final",
+        "display": "standalone", 
         "background_color": "#ffffff",
         "theme_color": "#ffffff",
         "orientation": "portrait",
@@ -281,50 +192,27 @@
             { "src": "logo.png", "sizes": "512x512", "type": "image/png" }
         ]
     };
-    
-    const stringManifest = JSON.stringify(manifestData);
-    const blobManifest = new Blob([stringManifest], {type: 'application/json'});
-    document.querySelector('#my-manifest').setAttribute('href', URL.createObjectURL(blobManifest));
 
-    // Service Worker Setup
-    if ('serviceWorker' in navigator) {
-        const swCode = `
-            self.addEventListener('install', (e) => self.skipWaiting());
-            self.addEventListener('fetch', (e) => {
-                e.respondWith(fetch(e.request).catch(() => { return caches.match(e.request); }));
-            });
-        `;
-        const blobSW = new Blob([swCode], {type: 'application/javascript'});
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register(URL.createObjectURL(blobSW))
-                .then(() => console.log('SW Ready'))
-                .catch(err => console.log('SW Error:', err));
-        });
-    }
+    const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+    document.querySelector('#my-manifest').setAttribute('href', URL.createObjectURL(manifestBlob));
 
-
-    // --- 2. APP UI LOGIC ---
-
+    // --- LOGIC ---
+    const splash = document.getElementById("splash-screen");
     const menu = document.getElementById("menu");
     const backdrop = document.getElementById("menuBackdrop");
     const frame = document.getElementById("appFrame");
-    const title = document.getElementById("pageTitle");
     const loader = document.getElementById("loader");
-    const splashScreen = document.getElementById("splash-screen");
+    const title = document.getElementById("pageTitle");
 
-    // Hide Splash Screen after load
-    window.onload = function() {
+    window.onload = () => {
         setTimeout(() => {
-            splashScreen.style.opacity = '0';
-            setTimeout(() => {
-                splashScreen.style.display = 'none';
-            }, 500);
-        }, 1200); // Slightly faster logic
+            splash.style.opacity = '0';
+            setTimeout(() => { splash.style.display = 'none'; }, 400);
+        }, 800);
     };
 
     function toggleMenu() {
-        const isOpen = menu.classList.contains("show");
-        if (isOpen) {
+        if (menu.classList.contains("show")) {
             menu.classList.remove("show");
             backdrop.classList.remove("active");
         } else {
@@ -333,20 +221,10 @@
         }
     }
 
-    function showLoader() {
-        loader.style.display = "block";
-        frame.style.opacity = "0"; 
-    }
-
-    frame.onload = function() {
-        loader.style.display = "none";
-        frame.style.opacity = "1";
-        frame.style.transition = "opacity 0.3s";
-    };
-
     function loadApp(type) {
         toggleMenu();
-        showLoader();
+        loader.style.display = "block";
+        frame.style.opacity = "0.3";
 
         setTimeout(() => {
             if (type === "orders") {
@@ -359,8 +237,13 @@
                 frame.src = "https://mirnasir007.github.io/Draft/";
                 title.innerText = "Draft";
             }
-        }, 150);
+        }, 100);
     }
+
+    frame.onload = () => {
+        loader.style.display = "none";
+        frame.style.opacity = "1";
+    };
 </script>
 
 </body>
