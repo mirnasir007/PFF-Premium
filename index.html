@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PFF PREMIUM</title>
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="logo.png">
+
+<!-- PWA / Mobile App Settings -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+
+<!-- Manifest for "Install App" feature -->
+<link rel="manifest" href='data:application/manifest+json,{"name":"PFF Mobile App","short_name":"PFF App","start_url":".","display":"standalone","background_color":"#f3f4f6","theme_color":"#ffffff","icons":[{"src":"logo.png","sizes":"192x192","type":"image/png"},{"src":"logo.png","sizes":"512x512","type":"image/png"}]}'>
+
+<!-- Google Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --header-bg: #ffffff;
+        --header-text: #000000;
+        --primary-color: #2563eb;
+        --bg-color: #f3f4f6;
+        --menu-hover: #f9fafb;
+        --loader-bg: #e5e7eb;
+    }
+
+    body {
+        margin: 0;
+        font-family: 'Roboto', sans-serif;
+        background: var(--bg-color);
+        color: #374151;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        /* Disable text selection for app-like feel */
+        user-select: none;
+        -webkit-user-select: none; 
+    }
+
+    /* --- Top Bar --- */
+    .top-bar {
+        height: 50px;
+        background: var(--header-bg);
+        color: var(--header-text);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 15px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        z-index: 100;
+        position: relative;
+    }
+
+    .title {
+        font-size: 17px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        color: #111;
+    }
+
+    /* 3-Dot Menu Button */
+    .menu-btn {
+        font-size: 20px;
+        cursor: pointer;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background 0.2s;
+        color: #333;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .menu-btn:active {
+        background: rgba(0,0,0,0.05);
+    }
+
+    /* --- Dropdown Menu --- */
+    .menu {
+        position: absolute;
+        top: 55px;
+        right: 10px;
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #f0f0f0;
+        width: 160px;
+        overflow: hidden;
+        transform-origin: top right;
+        transform: scale(0);
+        opacity: 0;
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        z-index: 1000;
+        pointer-events: none;
+    }
+
+    .menu.show {
+        transform: scale(1);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .menu-item {
+        padding: 12px 15px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .menu-item:last-child {
+        border-bottom: none;
+    }
+
+    .menu-item:hover {
+        background: var(--menu-hover);
+    }
+    
+    .menu-item:active {
+        background: #eff6ff;
+        color: var(--primary-color);
+    }
+
+    .menu-item i {
+        color: #6b7280;
+        width: 18px;
+        text-align: center;
+    }
+
+    /* --- Content --- */
+    .content-wrapper {
+        flex: 1;
+        position: relative;
+        width: 100%;
+        background: var(--bg-color);
+    }
+
+    iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+    }
+
+    /* --- Loader --- */
+    .loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border: 3px solid var(--loader-bg);
+        border-top: 3px solid var(--primary-color);
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        animation: spin 1s linear infinite;
+        display: none;
+    }
+
+    @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    /* Overlay */
+    .click-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 99;
+        display: none;
+    }
+    .click-overlay.active {
+        display: block;
+    }
+
+</style>
+</head>
+
+<body>
+
+<div class="click-overlay" id="clickOverlay" onclick="toggleMenu()"></div>
+
+<!-- Top Header -->
+<div class="top-bar">
+    <div class="title" id="pageTitle">Orders</div>
+    <div class="menu-btn" onclick="toggleMenu()">
+        <i class="fa-solid fa-ellipsis-vertical"></i>
+    </div>
+</div>
+
+<!-- Dropdown Menu -->
+<div class="menu" id="menu">
+    <div class="menu-item" onclick="loadApp('orders')">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <span>Orders</span>
+    </div>
+    <div class="menu-item" onclick="loadApp('inventory')">
+        <i class="fa-solid fa-boxes-stacked"></i>
+        <span>Inventory</span>
+    </div>
+    <div class="menu-item" onclick="loadApp('draft')">
+        <i class="fa-solid fa-file-pen"></i>
+        <span>Draft</span>
+    </div>
+</div>
+
+<!-- App View -->
+<div class="content-wrapper">
+    <div class="loader" id="loader"></div>
+    <iframe id="appFrame" src="https://mirnasir007.github.io/PFF-Orders/"></iframe>
+</div>
+
+<script>
+    const menu = document.getElementById("menu");
+    const clickOverlay = document.getElementById("clickOverlay");
+    const frame = document.getElementById("appFrame");
+    const title = document.getElementById("pageTitle");
+    const loader = document.getElementById("loader");
+
+    function toggleMenu() {
+        menu.classList.toggle("show");
+        clickOverlay.classList.toggle("active");
+    }
+
+    function showLoader() {
+        loader.style.display = "block";
+        frame.style.opacity = "0.6";
+    }
+
+    frame.onload = function() {
+        loader.style.display = "none";
+        frame.style.opacity = "1";
+    };
+
+    function loadApp(type) {
+        toggleMenu();
+        showLoader();
+
+        if (type === "orders") {
+            frame.src = "https://mirnasir007.github.io/PFF-Orders/";
+            title.innerText = "Orders";
+        } else if (type === "inventory") {
+            frame.src = "https://mirnasir007.github.io/website-inventory/";
+            title.innerText = "Inventory";
+        } else if (type === "draft") {
+            frame.src = "https://mirnasir007.github.io/Draft/";
+            title.innerText = "Draft";
+        }
+    }
+</script>
+
+</body>
+</html>
