@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-    /* === CHANGE 2: CSS VARIABLES FOR AUTO THEME === */
+    /* === EXISTING CSS VARIABLES === */
     :root {
         /* Default (Light Mode) */
         --header-height: 56px;
@@ -48,9 +48,8 @@
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    /* === CHANGE 3: HTML BACKGROUND FIX FOR NOTCH === */
     html {
-        background-color: var(--bg-color); /* Will change automatically */
+        background-color: var(--bg-color);
         transition: background-color 0.3s;
     }
 
@@ -67,11 +66,11 @@
         user-select: none; -webkit-user-select: none;
     }
 
-    /* --- Splash Screen --- */
+    /* --- Splash Screen (UNCHANGED) --- */
     #splash-screen {
         position: fixed; top: 0; left: 0;
         width: 100%; height: 100%;
-        background: var(--bg-color); /* Matches theme */
+        background: var(--bg-color);
         z-index: 9999;
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
@@ -97,7 +96,28 @@
         position: relative;
     }
 
+    .top-left-group {
+        display: flex; align-items: center; gap: 12px;
+    }
+
     .title { font-size: 18px; font-weight: 700; color: var(--text-color); }
+
+    /* NEW: Split Toggle Button Style */
+    .split-btn {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 6px 12px;
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex; align-items: center; gap: 5px;
+    }
+    .split-btn.active {
+        background: var(--primary-color);
+        color: white;
+    }
 
     .menu-btn {
         width: 44px; height: 44px;
@@ -107,11 +127,56 @@
     }
     .menu-btn:active { background: rgba(128,128,128,0.2); }
 
-    /* --- Content Area --- */
+    /* --- Content Area (RESPONSIVE SPLIT) --- */
     .content-wrapper {
-        flex: 1; position: relative; width: 100%; background: var(--menu-bg);
+        flex: 1; position: relative; width: 100%; 
+        background: var(--bg-color);
+        display: flex;
+        flex-direction: row; /* Default: Side by Side (Desktop) */
+        padding: 0;
+        overflow: hidden;
     }
-    iframe { width: 100%; height: 100%; border: none; display: block; }
+    
+    /* Frame Containers */
+    .frame-container {
+        flex: 1;
+        height: 100%;
+        position: relative;
+        transition: all 0.3s ease;
+        border-right: 1px solid var(--border-color); /* Divider for desktop */
+        border-bottom: none;
+    }
+    .frame-container:last-child { border-right: none; }
+    
+    .frame-container.hidden { display: none; }
+
+    /* --- MOBILE RESPONSIVENESS FOR SPLIT --- */
+    @media (max-width: 768px) {
+        .content-wrapper {
+            flex-direction: column; /* Top-Bottom Split on Mobile */
+        }
+
+        .frame-container {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid var(--border-color); /* Divider for mobile */
+        }
+        .frame-container:last-child { border-bottom: none; }
+    }
+
+    iframe { width: 100%; height: 100%; border: none; display: block; background: var(--menu-bg); }
+
+    /* Empty State for Right Screen */
+    .empty-screen-msg {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: #9ca3af; text-align: center;
+        background: var(--menu-bg);
+    }
+    /* Rotate icon for mobile view hint */
+    @media (max-width: 768px) {
+        .empty-screen-msg i { transform: rotate(45deg); } 
+    }
 
     /* --- Menu --- */
     .menu-backdrop {
@@ -129,7 +194,7 @@
         background: var(--menu-bg); 
         border-radius: 16px;
         box-shadow: 0 15px 50px rgba(0,0,0,0.3);
-        width: 200px;
+        width: 260px; /* Slightly wider for split controls */
         transform: scale(0.9); opacity: 0; visibility: hidden;
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         z-index: 1000; overflow: hidden;
@@ -137,17 +202,47 @@
     }
     .menu.show { transform: scale(1); opacity: 1; visibility: visible; }
 
+    /* Modified Menu Item Structure */
+    .menu-row {
+        display: flex; align-items: center; justify-content: space-between;
+        border-bottom: 1px solid var(--border-color);
+        padding-right: 12px;
+    }
+    .menu-row:last-child { border-bottom: none; }
+
     .menu-item {
         padding: 16px 20px; font-size: 16px; font-weight: 500; 
         color: var(--text-color);
         display: flex; align-items: center; gap: 14px;
-        border-bottom: 1px solid var(--border-color);
+        flex-grow: 1;
+        cursor: pointer;
     }
-    .menu-item:last-child { border-bottom: none; }
     
     .menu-item:active { background: rgba(37, 99, 235, 0.1); color: var(--primary-color); }
     .menu-item i { width: 24px; text-align: center; color: #9ca3af; }
     .menu-item:active i { color: var(--primary-color); }
+
+    /* Split Controls (L/R Buttons) */
+    .split-controls {
+        display: none; /* Hidden by default */
+        gap: 8px;
+    }
+    .control-btn {
+        width: 24px; height: 24px;
+        border-radius: 6px;
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        font-size: 10px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+    }
+    /* Update button text for mobile to be intuitive (Top/Bottom instead of Left/Right visually, but logic same) */
+    @media (max-width: 768px) {
+        .control-btn { font-size: 9px; }
+    }
+
+    .control-btn:active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
 
     /* --- Loader --- */
     .app-loader {
@@ -164,6 +259,7 @@
 
 <body>
 
+<!-- Splash Screen (UNCHANGED) -->
 <div id="splash-screen">
     <div class="splash-text">PFF PREMIUM</div>
 </div>
@@ -171,32 +267,74 @@
 <div class="menu-backdrop" id="menuBackdrop" onclick="toggleMenu()"></div>
 
 <div class="top-bar">
-    <div class="title" id="pageTitle">Orders</div>
+    <div class="top-left-group">
+        <div class="title" id="pageTitle">Orders</div>
+        <!-- NEW: Split Button -->
+        <div class="split-btn" id="splitToggleBtn" onclick="toggleSplitMode()">
+            <i class="fa-solid fa-columns"></i> Split
+        </div>
+    </div>
     <div class="menu-btn" onclick="toggleMenu()">
         <i class="fa-solid fa-ellipsis-vertical"></i>
     </div>
 </div>
 
 <div class="menu" id="menu">
-    <div class="menu-item" onclick="loadApp('orders')">
-        <i class="fa-solid fa-clipboard-list"></i> <span>Orders</span>
+    <!-- Orders -->
+    <div class="menu-row">
+        <div class="menu-item" onclick="loadApp('orders', 1)">
+            <i class="fa-solid fa-clipboard-list"></i> <span>Orders</span>
+        </div>
+        <div class="split-controls">
+            <div class="control-btn" onclick="loadApp('orders', 1)">1</div>
+            <div class="control-btn" onclick="loadApp('orders', 2)">2</div>
+        </div>
     </div>
-    <div class="menu-item" onclick="loadApp('inventory')">
-        <i class="fa-solid fa-boxes-stacked"></i> <span>Inventory</span>
+
+    <!-- Inventory -->
+    <div class="menu-row">
+        <div class="menu-item" onclick="loadApp('inventory', 1)">
+            <i class="fa-solid fa-boxes-stacked"></i> <span>Inventory</span>
+        </div>
+        <div class="split-controls">
+            <div class="control-btn" onclick="loadApp('inventory', 1)">1</div>
+            <div class="control-btn" onclick="loadApp('inventory', 2)">2</div>
+        </div>
     </div>
-    <div class="menu-item" onclick="loadApp('draft')">
-        <i class="fa-solid fa-file-pen"></i> <span>Draft</span>
+
+    <!-- Draft -->
+    <div class="menu-row">
+        <div class="menu-item" onclick="loadApp('draft', 1)">
+            <i class="fa-solid fa-file-pen"></i> <span>Draft</span>
+        </div>
+        <div class="split-controls">
+            <div class="control-btn" onclick="loadApp('draft', 1)">1</div>
+            <div class="control-btn" onclick="loadApp('draft', 2)">2</div>
+        </div>
     </div>
 </div>
 
+<!-- Content Wrapper with Two Frames -->
 <div class="content-wrapper">
     <div class="app-loader" id="loader"></div>
-    <iframe id="appFrame" src="https://mirnasir007.github.io/PFF-Orders/"></iframe>
+    
+    <!-- Frame 1 (Main/Top/Left) -->
+    <div id="frameContainer1" class="frame-container">
+        <iframe id="frame1" src="https://mirnasir007.github.io/PFF-Orders/"></iframe>
+    </div>
+
+    <!-- Frame 2 (Secondary/Bottom/Right - Initially Hidden) -->
+    <div id="frameContainer2" class="frame-container hidden">
+        <div class="empty-screen-msg" id="emptyMsg">
+            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 24px; margin-bottom: 10px;"></i>
+            Select from Menu [2]
+        </div>
+        <iframe id="frame2" src="about:blank"></iframe>
+    </div>
 </div>
 
 <script>
-    // --- MANIFEST CONFIG (Dynamic Color) ---
-    // Check if user prefers dark mode for initial manifest generation
+    // --- MANIFEST CONFIG (UNCHANGED) ---
     const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     const themeColor = isDarkMode ? "#1f2937" : "#ffffff";
     const bgColor = isDarkMode ? "#111827" : "#ffffff";
@@ -223,10 +361,20 @@
     const splash = document.getElementById("splash-screen");
     const menu = document.getElementById("menu");
     const backdrop = document.getElementById("menuBackdrop");
-    const frame = document.getElementById("appFrame");
     const loader = document.getElementById("loader");
     const title = document.getElementById("pageTitle");
+    
+    // Split Screen Elements
+    const splitBtn = document.getElementById("splitToggleBtn");
+    const frameContainer1 = document.getElementById("frameContainer1");
+    const frameContainer2 = document.getElementById("frameContainer2");
+    const frame1 = document.getElementById("frame1");
+    const frame2 = document.getElementById("frame2");
+    const emptyMsg = document.getElementById("emptyMsg");
 
+    let isSplitMode = false;
+
+    // Splash Logic
     window.onload = () => {
         setTimeout(() => {
             splash.style.opacity = '0';
@@ -234,6 +382,7 @@
         }, 800);
     };
 
+    // Toggle Menu
     function toggleMenu() {
         if (menu.classList.contains("show")) {
             menu.classList.remove("show");
@@ -244,28 +393,79 @@
         }
     }
 
-    function loadApp(type) {
-        toggleMenu();
+    // Toggle Split Mode
+    function toggleSplitMode() {
+        isSplitMode = !isSplitMode;
+        const controls = document.querySelectorAll('.split-controls');
+
+        if (isSplitMode) {
+            // Enable Split
+            frameContainer2.classList.remove("hidden");
+            splitBtn.classList.add("active");
+            splitBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Close';
+            
+            // Show 1/2 buttons in menu
+            controls.forEach(el => el.style.display = 'flex');
+        } else {
+            // Disable Split
+            frameContainer2.classList.add("hidden");
+            splitBtn.classList.remove("active");
+            splitBtn.innerHTML = '<i class="fa-solid fa-columns"></i> Split';
+            
+            // Hide 1/2 buttons
+            controls.forEach(el => el.style.display = 'none');
+        }
+    }
+
+    // Load App Logic
+    function loadApp(type, frameId) {
+        // Determine URL based on type
+        let url = "";
+        let pageName = "";
+        
+        if (type === "orders") {
+            url = "https://mirnasir007.github.io/PFF-Orders/";
+            pageName = "Orders";
+        } else if (type === "inventory") {
+            url = "https://mirnasir007.github.io/website-inventory/";
+            pageName = "Inventory";
+        } else if (type === "draft") {
+            url = "https://mirnasir007.github.io/Draft/";
+            pageName = "Draft";
+        }
+
+        // Handle Frame Logic
+        const targetFrame = (frameId === 2) ? frame2 : frame1;
+
+        // If standard click (frameId 1)
+        if (frameId === 1) {
+            title.innerText = pageName;
+            toggleMenu();
+        }
+
+        // If loading to secondary frame (frameId 2)
+        if (frameId === 2) {
+            emptyMsg.style.display = 'none';
+            toggleMenu();
+        }
+
+        // Show loader briefly
         loader.style.display = "block";
-        frame.style.opacity = "0.3";
+        targetFrame.style.opacity = "0.3";
 
         setTimeout(() => {
-            if (type === "orders") {
-                frame.src = "https://mirnasir007.github.io/PFF-Orders/";
-                title.innerText = "Orders";
-            } else if (type === "inventory") {
-                frame.src = "https://mirnasir007.github.io/website-inventory/";
-                title.innerText = "Inventory";
-            } else if (type === "draft") {
-                frame.src = "https://mirnasir007.github.io/Draft/";
-                title.innerText = "Draft";
-            }
+            targetFrame.src = url;
         }, 100);
     }
 
-    frame.onload = () => {
+    // Loader handling for both frames
+    frame1.onload = () => {
         loader.style.display = "none";
-        frame.style.opacity = "1";
+        frame1.style.opacity = "1";
+    };
+    frame2.onload = () => {
+        loader.style.display = "none";
+        frame2.style.opacity = "1";
     };
 </script>
 
