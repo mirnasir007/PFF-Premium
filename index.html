@@ -1,769 +1,473 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PFF Premium App</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Remix Icons (For Main App) -->
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    
-    <!-- FontAwesome (For Inventory & Draft App) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<meta charset="UTF-8">
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-    <!-- Tailwind Config -->
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#3b82f6',
-                        darkBg: '#0f172a',
-                        darkCard: '#1e293b',
-                        // Orders App Colors
-                        pffGreen: '#008060',
-                    }
-                }
-            }
+<title>PFF PREMIUM</title>
+
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1f2937" media="(prefers-color-scheme: dark)">
+
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PFF PREMIUM">
+
+<link rel="manifest" id="my-manifest">
+<link rel="icon" type="image/png" href="logo.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    /* === EXISTING CSS VARIABLES === */
+    :root {
+        /* Default (Light Mode) */
+        --header-height: 56px;
+        --header-bg: rgba(255, 255, 255, 0.95);
+        --text-color: #1f2937;
+        --primary-color: #2563eb;
+        --bg-color: #f3f4f6;
+        --menu-bg: #ffffff;
+        --border-color: #e5e7eb;
+    }
+
+    /* Auto Dark Mode Detection */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --header-bg: rgba(31, 41, 55, 0.95); /* Dark Header */
+            --text-color: #f3f4f6; /* Light Text */
+            --bg-color: #111827; /* Dark Background */
+            --menu-bg: #374151; /* Dark Menu */
+            --border-color: #374151;
         }
-    </script>
+    }
 
-    <style>
-        /* --- MAIN APP SHELL STYLES --- */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .dark ::-webkit-scrollbar-thumb { background: #475569; }
-        .active-pane { border: 2px solid #3b82f6 !important; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* ================================================================= */
-        /* --- ORDERS MODULE STYLES (Scoped to .orders-app) --- */
-        /* ================================================================= */
-        .orders-app { --primary: #008060; --bg: #f6f6f7; --white: #ffffff; --text: #202223; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100%; display: flex; flex-direction: column; overflow: hidden; position: relative; }
-        .dark .orders-app { --bg: #0f172a; --white: #1e293b; --text: #e2e8f0; --primary: #008060; }
-        .orders-app .loading-bar-container { position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: transparent; z-index: 200; pointer-events: none; }
-        .orders-app .loading-bar { height: 100%; width: 0; background: var(--primary); transition: width 0.3s ease; }
-        .orders-app .loading-bar.active { animation: progressIndeterminate 1.5s infinite linear; }
-        @keyframes progressIndeterminate { 0% { left: 0; width: 0; } 50% { left: 0; width: 50%; } 100% { left: 100%; width: 0; } }
-        .orders-app .top-bar { background: var(--white); padding: 15px 20px; border-bottom: 1px solid #e1e3e5; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; flex-shrink: 0; position: sticky; top: 0; z-index: 100; }
-        .dark .orders-app .top-bar { border-color: #334155; }
-        .orders-app .mobile-menu-btn { display: none; background: none; border: none; font-size: 24px; cursor: pointer; padding: 5px; color: var(--text); }
-        .orders-app .filter-options { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; flex: 1; }
-        .orders-app .filter-options.show { display: flex; }
-        .orders-app .input-group { display: flex; align-items: center; gap: 5px; }
-        .orders-app input, .orders-app select, .orders-app textarea { padding: 8px 12px; border: 1px solid #babfc3; border-radius: 4px; font-size: 14px; outline: none; background: var(--white); color: var(--text); }
-        .dark .orders-app input, .dark .orders-app select, .dark .orders-app textarea { border-color: #475569; background: #0f172a; }
-        .orders-app .btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px; }
-        .orders-app .btn-secondary { background: #fff; border: 1px solid #babfc3; color: #333; }
-        .dark .orders-app .btn-secondary { background: #1e293b; border-color: #475569; color: #e2e8f0; }
-        .orders-app .btn-outline { background: white; border: 1px solid #babfc3; color: #333; font-size: 11px; padding: 4px 8px; margin-top: 5px; cursor: pointer; border-radius: 4px; font-weight: 500; }
-        .dark .orders-app .btn-outline { background: #1e293b; border-color: #475569; color: #e2e8f0; }
-        .orders-app .btn-danger { background: #d82c0d; color: white; border: none; }
-        .orders-app .btn-sm { padding: 4px 8px; font-size: 11px; margin-top: 5px; }
-        .orders-app .btn-export { background: #107c41; color: white; display: flex; align-items: center; gap: 5px; margin-left: 10px; }
-        .orders-app .status-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; display: inline-block; cursor: default; }
-        .orders-app .status-paid { background: #c4f5cd; color: #005c26; }
-        .orders-app .status-pending { background: #ffebd3; color: #8a6116; }
-        .orders-app .status-voided { background: #ffe5e5; color: #d82c0d; }
-        .orders-app .status-product-entry { background: #e3f1df; color: #202223; border: 1px solid #c4f5cd; }
-        .orders-app .status-courier { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
-        .orders-app .status-void { background: #ffe5e5; color: #d82c0d; border: 1px solid #ffcccc; }
-        .orders-app .content-area { padding: 20px; position: relative; flex: 1; overflow-y: auto; }
-        .orders-app .order-card { background: var(--white); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 15px; padding: 15px; display: flex; flex-direction: column; gap: 10px; border-left: 4px solid var(--primary); }
-        .orders-app .order-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .orders-app .header-left { display: flex; gap: 20px; align-items: flex-start; flex: 1; }
-        .orders-app .info-block { display: flex; flex-direction: column; }
-        .orders-app .order-id { font-weight: 700; font-size: 16px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        .orders-app .order-date { font-size: 12px; color: #6d7175; }
-        .dark .orders-app .order-date { color: #94a3b8; }
-        .orders-app .customer-details-box { display: flex; flex-direction: column; font-size: 13px; color: var(--text); line-height: 1.4; border-left: 2px solid #eee; padding-left: 10px; }
-        .dark .orders-app .customer-details-box { border-color: #334155; }
-        .orders-app .cust-name-row { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; }
-        .orders-app .copy-icon { cursor: pointer; font-size: 14px; color: #555; transition: 0.2s; padding: 2px; border-radius: 3px; }
-        .orders-app .cust-phone { color: #555; font-family: monospace; font-size: 13px; font-weight: 600; margin-top: 2px; }
-        .dark .orders-app .cust-phone { color: #cbd5e1; }
-        .orders-app .cust-addr { font-size: 12px; color: #666; margin-top: 2px; }
-        .dark .orders-app .cust-addr { color: #94a3b8; }
-        .orders-app .saved-note { font-size: 12px; color: #d82c0d; font-weight: 600; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; border: 1px dashed #d82c0d; padding: 2px 5px; border-radius: 4px; display: block; }
-        .orders-app .order-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-        .orders-app .price-tag { font-weight: 700; font-size: 15px; }
-        .orders-app .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; margin-top: 10px; }
-        .orders-app .p-item { text-align: center; font-size: 11px; display: flex; flex-direction: column; align-items: center; position: relative; }
-        .orders-app .p-item.removed { opacity: 0.6; }
-        .orders-app .removed-badge { position: absolute; top: 35px; left: 50%; transform: translate(-50%, -50%); background: rgba(220, 38, 38, 0.9); color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: bold; pointer-events: none; z-index: 2; }
-        .orders-app .p-img { width: 100%; height: 90px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; cursor: zoom-in; transition: transform 0.2s; }
-        .orders-app .variant-text { font-size: 10px; color: #555; background: #f4f4f4; padding: 2px 4px; border-radius: 4px; margin-top: 4px; }
-        .dark .orders-app .variant-text { background: #334155; color: #cbd5e1; }
-        .orders-app .price-text { font-size: 10px; color: var(--primary); font-weight: 700; margin-top: 2px; }
-        .orders-app .btn-edit-order { background: #e3f1df; color: #008060; border: 1px solid #c4f5cd; padding: 2px 6px; font-size: 11px; border-radius: 4px; cursor: pointer; margin-left: 5px; }
-        .orders-app .modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .orders-app .modal-box { background: var(--white); width: 400px; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; max-height: 90%; overflow-y: auto; color: var(--text); }
-        .orders-app .modal-close { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: var(--text); }
-        .orders-app .form-group { margin-bottom: 12px; }
-        .orders-app .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
-        .orders-app .form-group input, .orders-app .form-group textarea { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #babfc3; border-radius: 4px;}
-        .dark .orders-app .form-group input, .dark .orders-app .form-group textarea { border-color: #475569; background: #0f172a; }
-        .orders-app .checkbox-group { display: flex; flex-direction: column; gap: 10px; margin: 15px 0; }
-        .orders-app .checkbox-item { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
-        .orders-app .edit-item-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #eee; }
-        .dark .orders-app .edit-item-row { border-color: #334155; }
-        .orders-app .search-result-item { display: flex; gap: 10px; padding: 8px; border: 1px solid #eee; margin-bottom: 5px; border-radius: 4px; align-items: center; }
-        .orders-app .img-preview { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; justify-content:center; align-items:center; touch-action: none; flex-direction: column; cursor: pointer; }
-        .orders-app .preview-content { flex: 1; width: 100%; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; pointer-events: none; }
-        .orders-app .preview-content img { max-width: 100%; max-height: 90vh; transition: transform 0.1s ease-out; cursor: grab; object-fit: contain; pointer-events: auto; }
-        .orders-app .img-bottom-bar { width: 100%; background: rgba(0,0,0,0.85); color: #fff; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; z-index: 2010; cursor: default; }
-        .orders-app .inventory-drawer { position: absolute; top: 0; right: -320px; width: 300px; height: 100%; background: #1c1c1c; z-index: 2030; transition: right 0.3s ease; display: flex; flex-direction: column; border-left: 1px solid #333; }
-        .orders-app .inventory-drawer.open { right: 0; }
-        .orders-app .inv-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 10px; color: #ddd; }
-        .orders-app .inv-input { width: 60px; background: #333; border: 1px solid #555; color: #fff; text-align: center; padding: 6px; border-radius: 4px; margin-right: 8px; font-size: 14px; }
-        .orders-app #toast { visibility: hidden; min-width: 250px; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 16px; position: absolute; z-index: 3000; left: 50%; bottom: 30px; transform: translateX(-50%); }
-        .orders-app #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @media screen and (max-width: 768px) {
-            .orders-app .mobile-menu-btn { display: block; position: absolute; right: 15px; top: 15px; z-index: 101; }
-            .orders-app .top-bar { flex-direction: column; gap: 10px; padding: 10px 10px 20px; align-items: stretch; position: relative; }
-            .orders-app #searchId { width: 100% !important; margin-bottom: 10px; }
-            .orders-app .filter-options { flex-direction: column; gap: 10px; width: 100%; display: none; }
-            .orders-app .filter-options.show { display: flex; }
-            .orders-app .order-header { flex-direction: column; }
-            .orders-app .header-left { flex-direction: column; width: 100%; gap: 10px; }
-            .orders-app .order-actions { flex-direction: row; width: 100%; justify-content: space-between; flex-wrap: wrap; margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+    html {
+        background-color: var(--bg-color);
+        transition: background-color 0.3s;
+    }
+
+    body {
+        margin: 0; padding: 0;
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-color);
+        color: var(--text-color);
+        height: 100vh; width: 100vw;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        overflow: hidden;
+        display: flex; flex-direction: column;
+        user-select: none; -webkit-user-select: none;
+    }
+
+    /* --- Splash Screen (UNCHANGED) --- */
+    #splash-screen {
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: var(--bg-color);
+        z-index: 9999;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        transition: opacity 0.4s ease-out;
+    }
+
+    .splash-text {
+        font-size: 26px; font-weight: 800;
+        color: var(--primary-color);
+        letter-spacing: 2px; text-transform: uppercase;
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0% {opacity:0.7; transform:scale(0.98);} 100% {opacity:1; transform:scale(1.02);} }
+
+    /* --- Top Bar --- */
+    .top-bar {
+        height: var(--header-height);
+        background: var(--header-bg);
+        border-bottom: 1px solid var(--border-color);
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 16px;
+        z-index: 100;
+        position: relative;
+    }
+
+    .top-left-group {
+        display: flex; align-items: center; gap: 12px;
+    }
+
+    .title { font-size: 18px; font-weight: 700; color: var(--text-color); }
+
+    /* NEW: Split Toggle Button Style */
+    .split-btn {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 6px 12px;
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary-color);
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex; align-items: center; gap: 5px;
+    }
+    .split-btn.active {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .menu-btn {
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 50%; font-size: 20px; color: var(--text-color);
+        cursor: pointer;
+    }
+    .menu-btn:active { background: rgba(128,128,128,0.2); }
+
+    /* --- Content Area (RESPONSIVE SPLIT) --- */
+    .content-wrapper {
+        flex: 1; position: relative; width: 100%; 
+        background: var(--bg-color);
+        display: flex;
+        flex-direction: row; /* Default: Side by Side (Desktop) */
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    /* Frame Containers */
+    .frame-container {
+        flex: 1;
+        height: 100%;
+        position: relative;
+        transition: all 0.3s ease;
+        border-right: 1px solid var(--border-color); /* Divider for desktop */
+        border-bottom: none;
+    }
+    .frame-container:last-child { border-right: none; }
+    
+    .frame-container.hidden { display: none; }
+
+    /* --- MOBILE RESPONSIVENESS FOR SPLIT --- */
+    @media (max-width: 768px) {
+        .content-wrapper {
+            flex-direction: column; /* Top-Bottom Split on Mobile */
         }
 
-        /* ================================================================= */
-        /* --- INVENTORY MODULE STYLES (Scoped to .inventory-app) --- */
-        /* ================================================================= */
-        .inventory-app { background-color: #f4f6f8; font-family: 'Segoe UI', sans-serif; height: 100%; overflow: hidden; display: flex; flex-direction: column; position: relative; }
-        .dark .inventory-app { background-color: #0f172a; color: #e2e8f0; }
-        .dark .inventory-app .bg-white { background-color: #1e293b !important; color: #e2e8f0; border-color: #334155 !important; }
-        .dark .inventory-app .bg-gray-50 { background-color: #0f172a !important; color: #e2e8f0; border-color: #334155 !important; }
-        .dark .inventory-app .bg-gray-100 { background-color: #334155 !important; color: #e2e8f0; }
-        .dark .inventory-app .text-gray-800, .dark .inventory-app .text-slate-800 { color: #f1f5f9 !important; }
-        .dark .inventory-app .text-gray-700 { color: #cbd5e1 !important; }
-        .dark .inventory-app .text-gray-600 { color: #94a3b8 !important; }
-        .dark .inventory-app .text-gray-500 { color: #94a3b8 !important; }
-        .dark .inventory-app .border-gray-200, .dark .inventory-app .border-gray-300, .dark .inventory-app .border-gray-100 { border-color: #334155 !important; }
-        .dark .inventory-app input, .dark .inventory-app select { background-color: #0f172a !important; color: white !important; border-color: #475569 !important; }
-        .dark .inventory-app .custom-select-trigger { background-color: #1e293b !important; border-color: #475569 !important; color: #e2e8f0; }
-        .dark .inventory-app .custom-options { background-color: #1e293b !important; border-color: #475569 !important; }
-        .dark .inventory-app .option:hover { background-color: #334155 !important; }
-        .inventory-app .retro-img-container { aspect-ratio: 3:2; overflow: hidden; background-color: #e2e8f0; cursor: pointer; position: relative; }
-        .inventory-app .retro-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
-        .inventory-app .product-card:hover .retro-img { transform: scale(1.05); }
-        .inventory-app .retro-img-container::after { content: '\f00e'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; opacity: 0; transition: opacity 0.3s ease; text-shadow: 0 2px 4px rgba(0,0,0,0.5); pointer-events: none; }
-        .inventory-app .retro-img-container:hover::after { opacity: 1; }
-        .inventory-app .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .inventory-app .custom-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        .inventory-app .loader { border: 3px solid #f3f3f3; border-top: 3px solid #16a34a; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .inventory-app .custom-select-wrapper { position: relative; width: 100%; }
-        .inventory-app .custom-select-trigger { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.75rem; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; cursor: pointer; font-size: 0.875rem; line-height: 1.25rem; white-space: nowrap; overflow: hidden; }
-        .inventory-app .custom-options { position: absolute; display: none; top: 100%; left: 0; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); z-index: 50; margin-top: 4px; }
-        .inventory-app .custom-options.open { display: block; }
-        .inventory-app .option { padding: 0.5rem 0.75rem; cursor: pointer; font-size: 0.875rem; color: #4b5563; }
-        .inventory-app .option:hover { background-color: #f3f4f6; color: #111827; }
-        .inventory-app .notification-bell { position: relative; cursor: pointer; }
-        .inventory-app .notification-dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%; display: none; }
-        .inventory-app .notification-popup { position: absolute; top: 100%; right: 0; width: 280px; background: white; border: 1px solid #e2e8f0; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); z-index: 100; margin-top: 8px; display: none; max-height: 300px; overflow-y: auto; }
-        .inventory-app .notification-popup.open { display: block; }
-
-        /* ================================================================= */
-        /* --- DRAFT MODULE STYLES (Scoped to .draft-app) --- */
-        /* ================================================================= */
-        .draft-app { background-color: #f4f6f8; font-family: 'Segoe UI', sans-serif; height: 100%; overflow: hidden; display: flex; flex-direction: column; position: relative; }
-        .dark .draft-app { background-color: #0f172a; color: #e2e8f0; }
-        
-        .draft-app .bg-white { background-color: #ffffff; }
-        .dark .draft-app .bg-white { background-color: #1e293b; color: #e2e8f0; }
-        
-        /* Product Images */
-        .draft-app .product-img { width: 45px; height: 45px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd; cursor: pointer; transition: transform 0.2s; }
-        .dark .draft-app .product-img { border-color: #475569; }
-        .draft-app .product-img:hover { transform: scale(1.1); border-color: #0d6efd; }
-        
-        /* Status Badges */
-        .draft-app .status-active { color: #198754; font-weight: bold; background: #d1e7dd; padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; display: inline-block; white-space: nowrap; }
-        .dark .draft-app .status-active { background: #064e3b; color: #6ee7b7; }
-        .draft-app .status-draft { color: #6c757d; font-weight: bold; background: #e2e3e5; padding: 3px 6px; border-radius: 4px; font-size: 0.7rem; display: inline-block; white-space: nowrap; }
-        .dark .draft-app .status-draft { background: #334155; color: #cbd5e1; }
-
-        /* Sticky Header */
-        .draft-app .sticky-header-wrapper { position: sticky; top: 0; z-index: 50; background-color: #f4f6f8; padding-top: 10px; padding-bottom: 5px; box-shadow: 0 4px 6px -4px rgba(0,0,0,0.1); }
-        .dark .draft-app .sticky-header-wrapper { background-color: #0f172a; box-shadow: 0 4px 6px -4px rgba(0,0,0,0.5); }
-        
-        .draft-app .helper-link { cursor: pointer; font-size: 0.8rem; text-decoration: none; margin-right: 8px; white-space: nowrap; }
-        .dark .draft-app .text-muted { color: #94a3b8 !important; }
-        .dark .draft-app .text-dark { color: #f1f5f9 !important; }
-
-        /* Custom Modals */
-        .draft-app .custom-modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(2px); justify-content: center; align-items: center; }
-        .draft-app #modalImg { max-width: 95%; max-height: 80vh; border-radius: 8px; object-fit: contain; }
-        .draft-app .confirm-box { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.2s ease-out; margin: auto; }
-        .dark .draft-app .confirm-box { background: #1e293b; color: #e2e8f0; }
-        @keyframes popIn { from {transform: scale(0.9); opacity: 0;} to {transform: scale(1); opacity: 1;} }
-
-        /* Inventory Grid */
-        .draft-app .inv-grid-container { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
-        .draft-app .inv-item { flex: 0 0 calc(33.33% - 4px); background: #fff; border: 1px solid #dee2e6; border-radius: 4px; padding: 2px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .dark .draft-app .inv-item { background: #0f172a; border-color: #334155; }
-        @media (min-width: 768px) { .draft-app .inv-item { flex: 0 0 calc(25% - 4px); } }
-
-        .draft-app .inv-label { font-size: 0.7rem; font-weight: bold; color: #555; margin-right: 3px; max-width: 30px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: none; }
-        .dark .draft-app .inv-label { color: #cbd5e1; }
-        @media (min-width: 768px) { .draft-app .inv-label { display: block; } }
-
-        .draft-app .inv-input { width: 100%; height: 32px; text-align: center; border: none; background: #f8f9fa; font-size: 1rem; font-weight: bold; padding: 0; border-radius: 2px; color: #212529; }
-        .dark .draft-app .inv-input { background: #334155; color: #f1f5f9; }
-        .draft-app .inv-input:focus { outline: 2px solid #3b82f6; background: #fff; }
-        .dark .draft-app .inv-input:focus { background: #1e293b; }
-        .draft-app .inv-dirty { background-color: #fff3cd !important; color: #856404; }
-        .dark .draft-app .inv-dirty { background-color: #422006 !important; color: #fdba74 !important; }
-
-        /* Loader */
-        .draft-app #ajax-loader-bar { position: fixed; top: 0; left: 0; width: 100%; height: 4px; background-color: #e9ecef; z-index: 9999; display: none; }
-        .draft-app .bar-indeterminate { background-color: #3b82f6; height: 100%; width: 100%; animation: indeterminateAnimation 1.5s infinite linear; transform-origin: 0% 50%; }
-        .draft-app #click-blocker { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 9998; display: none; cursor: progress; }
-
-        /* Table & Inputs */
-        .draft-app input[type="text"], .draft-app select { padding: 6px 12px; border: 1px solid #ced4da; border-radius: 4px; outline: none; width: 100%; background: #fff; color: #333; }
-        .dark .draft-app input[type="text"], .dark .draft-app select { background: #1e293b; border-color: #475569; color: #e2e8f0; }
-        
-        .draft-app .table { width: 100%; border-collapse: collapse; }
-        .draft-app .table th { background: #f8f9fa; padding: 8px; text-align: center; border-bottom: 2px solid #dee2e6; font-size: 0.85rem; color: #333; }
-        .dark .draft-app .table th { background: #1e293b; border-color: #334155; color: #e2e8f0; }
-        .draft-app .table td { padding: 8px; border-bottom: 1px solid #dee2e6; vertical-align: middle; }
-        .dark .draft-app .table td { border-color: #334155; }
-        
-        /* Mobile Card View for Draft */
-        @media (max-width: 768px) {
-            .draft-app thead { display: none; }
-            .draft-app tbody tr { display: flex; flex-wrap: wrap; background: #fff; margin-bottom: 12px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); align-items: center; }
-            .dark .draft-app tbody tr { background: #1e293b; border-color: #334155; }
-            .draft-app tbody td { border: none !important; padding: 2px 4px !important; display: block; }
-            .draft-app tbody td:nth-child(1) { width: 30px; order: 1; } /* Checkbox */
-            .draft-app tbody td:nth-child(2) { width: 55px; order: 2; } /* Image */
-            .draft-app tbody td:nth-child(3) { width: calc(100% - 165px); order: 3; font-weight: bold; line-height: 1.2; } /* Title */
-            .draft-app tbody td:nth-child(7) { width: 80px; order: 4; text-align: right; } /* Status */
-            .draft-app tbody td:nth-child(5) { width: 50%; order: 5; font-size: 0.8rem; color: #666; margin-top: 5px; padding-left: 35px !important; } /* SKU */
-            .dark .draft-app tbody td:nth-child(5) { color: #94a3b8; }
-            .draft-app tbody td:nth-child(5)::before { content: "SKU: "; font-weight: bold; opacity: 0.7; }
-            .draft-app tbody td:nth-child(6) { width: 50%; order: 6; text-align: right; font-size: 0.8rem; color: #666; margin-top: 5px; } /* Type */
-            .dark .draft-app tbody td:nth-child(6) { color: #94a3b8; }
-            .draft-app tbody td:nth-child(4) { width: 100%; order: 7; margin-top: 8px; border-top: 1px dashed #eee !important; padding-top: 8px !important; } /* Inventory */
-            .dark .draft-app tbody td:nth-child(4) { border-color: #334155 !important; }
+        .frame-container {
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid var(--border-color); /* Divider for mobile */
         }
-    </style>
+        .frame-container:last-child { border-bottom: none; }
+    }
+
+    iframe { width: 100%; height: 100%; border: none; display: block; background: var(--menu-bg); }
+
+    /* Empty State for Right Screen */
+    .empty-screen-msg {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: #9ca3af; text-align: center;
+        background: var(--menu-bg);
+    }
+    /* Rotate icon for mobile view hint */
+    @media (max-width: 768px) {
+        .empty-screen-msg i { transform: rotate(45deg); } 
+    }
+
+    /* --- Menu --- */
+    .menu-backdrop {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.4); z-index: 998;
+        opacity: 0; visibility: hidden; transition: opacity 0.3s;
+        backdrop-filter: blur(3px);
+    }
+    .menu-backdrop.active { opacity: 1; visibility: visible; }
+
+    .menu {
+        position: absolute;
+        top: calc(var(--header-height) + 10px);
+        right: 16px;
+        background: var(--menu-bg); 
+        border-radius: 16px;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        width: 260px; /* Slightly wider for split controls */
+        transform: scale(0.9); opacity: 0; visibility: hidden;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        z-index: 1000; overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+    .menu.show { transform: scale(1); opacity: 1; visibility: visible; }
+
+    /* Modified Menu Item Structure */
+    .menu-row {
+        display: flex; align-items: center; justify-content: space-between;
+        border-bottom: 1px solid var(--border-color);
+        padding-right: 12px;
+    }
+    .menu-row:last-child { border-bottom: none; }
+
+    .menu-item {
+        padding: 16px 20px; font-size: 16px; font-weight: 500; 
+        color: var(--text-color);
+        display: flex; align-items: center; gap: 14px;
+        flex-grow: 1;
+        cursor: pointer;
+    }
+    
+    .menu-item:active { background: rgba(37, 99, 235, 0.1); color: var(--primary-color); }
+    .menu-item i { width: 24px; text-align: center; color: #9ca3af; }
+    .menu-item:active i { color: var(--primary-color); }
+
+    /* Split Controls (L/R Buttons) */
+    .split-controls {
+        display: none; /* Hidden by default */
+        gap: 8px;
+    }
+    .control-btn {
+        width: 24px; height: 24px;
+        border-radius: 6px;
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        color: var(--text-color);
+        font-size: 10px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+    }
+    /* Update button text for mobile to be intuitive (Top/Bottom instead of Left/Right visually, but logic same) */
+    @media (max-width: 768px) {
+        .control-btn { font-size: 9px; }
+    }
+
+    .control-btn:active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+
+    /* --- Loader --- */
+    .app-loader {
+        position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px; height: 40px;
+        border: 3px solid var(--border-color); border-top-color: var(--primary-color);
+        border-radius: 50%; animation: spin 0.8s linear infinite;
+        display: none; z-index: 50;
+    }
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+</style>
 </head>
-<body class="bg-gray-100 dark:bg-darkBg text-gray-800 dark:text-gray-200 transition-colors duration-300 overflow-hidden h-screen flex flex-col">
 
-    <!-- HEADER / TOP BAR -->
-    <header class="h-16 bg-white dark:bg-darkCard shadow-sm flex items-center justify-between px-4 z-20 shrink-0">
-        <div class="flex items-center gap-3">
-            <button id="menu-btn" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-                <i class="ri-more-2-fill text-2xl font-bold"></i>
-            </button>
-            <h1 class="font-bold text-lg tracking-wide">PFF PREMIUM</h1>
+<body>
+
+<!-- Splash Screen (UNCHANGED) -->
+<div id="splash-screen">
+    <div class="splash-text">PFF PREMIUM</div>
+</div>
+
+<div class="menu-backdrop" id="menuBackdrop" onclick="toggleMenu()"></div>
+
+<div class="top-bar">
+    <div class="top-left-group">
+        <div class="title" id="pageTitle">Orders</div>
+        <!-- NEW: Split Button -->
+        <div class="split-btn" id="splitToggleBtn" onclick="toggleSplitMode()">
+            <i class="fa-solid fa-columns"></i> Split
         </div>
+    </div>
+    <div class="menu-btn" onclick="toggleMenu()">
+        <i class="fa-solid fa-ellipsis-vertical"></i>
+    </div>
+</div>
 
-        <div class="flex items-center gap-4">
-            <button id="split-btn" class="flex items-center gap-2 px-3 py-1.5 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition text-sm font-medium" onclick="toggleSplitMode()">
-                <i class="ri-layout-column-line"></i>
-                <span class="hidden sm:inline">Split</span>
-            </button>
-            <button id="theme-btn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition" onclick="toggleTheme()">
-                <i id="theme-icon" class="ri-moon-line text-xl"></i>
-            </button>
+<div class="menu" id="menu">
+    <!-- Orders -->
+    <div class="menu-row">
+        <div class="menu-item" onclick="loadApp('orders', 1)">
+            <i class="fa-solid fa-clipboard-list"></i> <span>Orders</span>
         </div>
-    </header>
-
-    <div class="flex flex-1 overflow-hidden relative">
-        
-        <!-- SIDEBAR MENU -->
-        <aside id="sidebar" class="absolute lg:static inset-y-0 left-0 w-64 bg-white dark:bg-darkCard shadow-lg transform -translate-x-full lg:transform-none lg:-ml-64 transition-all duration-300 z-30 flex flex-col border-r dark:border-gray-700">
-            <nav class="p-4 space-y-2 flex-1 mt-2">
-                <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 pl-2">Menu</div>
-                <button onclick="loadContent('Orders')" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition group">
-                    <i class="ri-file-list-3-line text-lg text-gray-500 group-hover:text-primary dark:text-gray-400"></i>
-                    <span>Orders</span>
-                </button>
-                <button onclick="loadContent('Inventory')" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition group">
-                    <i class="ri-store-2-line text-lg text-gray-500 group-hover:text-primary dark:text-gray-400"></i>
-                    <span>Inventory</span>
-                </button>
-                <button onclick="loadContent('Draft')" class="w-full text-left flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition group">
-                    <i class="ri-draft-line text-lg text-gray-500 group-hover:text-primary dark:text-gray-400"></i>
-                    <span>Draft</span>
-                </button>
-            </nav>
-            <div class="p-4 border-t dark:border-gray-700">
-                <p class="text-xs text-center text-gray-500">v1.6.0</p>
-            </div>
-        </aside>
-
-        <!-- OVERLAY -->
-        <div id="overlay" class="fixed inset-0 bg-black/50 z-20 hidden" onclick="toggleSidebar()"></div>
-
-        <!-- MAIN CONTENT AREA -->
-        <main id="main-container" class="flex-1 p-4 overflow-hidden flex flex-col lg:flex-row gap-4 relative transition-all duration-300">
-            <!-- PANE 1 -->
-            <div id="pane-1" class="flex-1 bg-white dark:bg-darkCard rounded-xl shadow-sm border border-transparent overflow-hidden active-pane relative transition-all duration-300 flex flex-col" onclick="setActivePane(1)">
-                <div class="p-6 h-full flex flex-col items-center justify-center text-gray-400" id="pane-1-placeholder">
-                    <i class="ri-layout-masonry-line text-4xl mb-2"></i>
-                    <p>Select Orders from menu</p>
-                </div>
-            </div>
-            <!-- PANE 2 -->
-            <div id="pane-2" class="hidden flex-1 bg-white dark:bg-darkCard rounded-xl shadow-sm border border-transparent overflow-hidden relative transition-all duration-300 flex flex-col" onclick="setActivePane(2)">
-                <div class="p-6 h-full flex flex-col items-center justify-center text-gray-400" id="pane-2-placeholder">
-                    <i class="ri-layout-right-2-line text-4xl mb-2"></i>
-                    <p>Select a menu item for Pane 2</p>
-                </div>
-            </div>
-        </main>
+        <div class="split-controls">
+            <div class="control-btn" onclick="loadApp('orders', 1)">1</div>
+            <div class="control-btn" onclick="loadApp('orders', 2)">2</div>
+        </div>
     </div>
 
-    <!-- ORDERS TEMPLATE -->
-    <template id="orders-template">
-        <div class="loading-bar-container"><div class="loading-bar" id="loadingBar"></div></div>
-        <div class="top-bar" id="filterBar">
-            <button class="mobile-menu-btn" id="mobileFilterBtn">⋯</button>
-            <div style="font-size: 20px; font-weight: 700; color: #008060; margin-right: 15px; white-space: nowrap;">📦 Orders</div>
-            <input type="text" id="searchId" placeholder="Order ID / Name / Phone" style="width: 200px;" oninput="debounceSearch()">
-            <div class="filter-options" id="filterOptions">
-                <select id="statusFilter" onchange="applyFilters()">
-                    <option value="any" selected>Any Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="paid">Paid</option>
-                    <option value="void">Void</option>
-                    <option value="product_entry">Product Entry</option>
-                    <option value="courier">Courier</option>
-                </select>
-                <div class="input-group"><input type="date" id="dateFrom"><span>to</span><input type="date" id="dateTo"></div>
-                <button class="btn" onclick="applyFilters()">Filter</button>
-                <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
-                <div id="entryAmountDisplay" class="entry-amount-display" style="font-size: 13px; font-weight: 600; color: #008060; background: #e3f1df; padding: 6px 10px; border-radius: 4px; border: 1px solid #c4f5cd; white-space: nowrap; margin-left: 10px;">Entry Amount: 0</div>
-                <button class="btn btn-export" onclick="downloadExcel()">⬇️ Excel</button>
-            </div>
+    <!-- Inventory -->
+    <div class="menu-row">
+        <div class="menu-item" onclick="loadApp('inventory', 1)">
+            <i class="fa-solid fa-boxes-stacked"></i> <span>Inventory</span>
         </div>
-        <div class="content-area">
-            <div id="ordersContainer"></div>
-            <div id="paginationControls" style="display:none; justify-content:center; gap:10px; margin-top:20px; padding-bottom: 20px;">
-                <button class="btn btn-secondary" id="btnPrev" onclick="changePage(-1)" disabled>Previous</button>
-                <button class="btn btn-secondary" id="btnNext" onclick="changePage(1)" disabled>Next</button>
-            </div>
+        <div class="split-controls">
+            <div class="control-btn" onclick="loadApp('inventory', 1)">1</div>
+            <div class="control-btn" onclick="loadApp('inventory', 2)">2</div>
         </div>
-        <div id="toast"></div>
-        <!-- (Orders Modals - Keeping simple for brevity, logic remains) -->
-        <div id="addModal" class="modal"><div class="modal-box"><span class="modal-close" onclick="closeModal('addModal')">&times;</span><div style="font-size:18px; font-weight:700; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">Add to Order List</div><input type="hidden" id="m_orderId"><input type="hidden" id="m_orderDate"><input type="hidden" id="m_amount"><div class="form-group"><label>Customer Number (11 Digits)</label><div style="display:flex; gap:10px;"><input type="text" id="cNumber" placeholder="017xxxxxxxx" onkeypress="handleEnter(event)" oninput="handleCustomerNumberInput(this)"><button class="btn btn-secondary" id="btnCheck" onclick="checkCustomer()">Check</button></div><div id="numWarning" style="color:red; font-size:11px; margin-top:5px;"></div></div><div id="customerDetails" style="display:none;"><div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span style="font-size:12px; font-weight:600;">Details</span><button id="btnTriggerUpdate" class="btn btn-sm btn-secondary" style="display:none;" onclick="enableUpdateMode()">Update</button></div><div class="form-group"><label>Name</label><input type="text" id="cName"></div><div class="form-group"><label>Address</label><textarea id="cAddress" rows="2"></textarea></div><div style="text-align: right; margin-top: 15px;"><button class="btn btn-secondary" onclick="closeModal('addModal')">Cancel</button><button class="btn" id="btnUpdateData" onclick="performCustomerUpdate()" style="display:none;">Update Data</button><button class="btn" id="btnSave" onclick="saveToSheet()">Save to List</button></div></div></div></div>
-        <div id="editCustomerModal" class="modal"><div class="modal-box"><span class="modal-close" onclick="closeModal('editCustomerModal')">&times;</span><h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">Edit Customer Info</h3><input type="hidden" id="ec_orderId"><div class="form-group"><label>Name</label><input type="text" id="ec_name"></div><div class="form-group"><label>Phone</label><input type="text" id="ec_phone"></div><div class="form-group"><label>Address</label><textarea id="ec_address" rows="3"></textarea></div><div style="text-align:right; margin-top:15px;"><button class="btn" onclick="saveOrderCustomerDetails()">Save Changes</button></div></div></div>
-        <div id="editOrderModal" class="modal"><div class="modal-box" style="width: 500px;"><span class="modal-close" onclick="closeModal('editOrderModal')">&times;</span><div style="font-size:18px; font-weight:700; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">Edit Order Products</div><input type="hidden" id="editOrderId"><div id="editOrderList" style="max-height: 250px; overflow-y: auto; margin-bottom: 15px;"></div><div style="border-top: 1px solid #eee; padding-top: 10px; margin-bottom: 15px;"><label style="font-size:12px; font-weight:600; display:block; margin-bottom:5px;">Add Product</label><div style="display:flex; gap:5px; margin-bottom:5px;"><input type="text" id="productSearchInput" placeholder="Product Name, SKU, or Type..." style="flex:1;"><button class="btn btn-sm btn-secondary" onclick="searchProducts()">Search</button></div><div id="productSearchResults" style="max-height: 150px; overflow-y: auto; background: var(--white); border: 1px solid #eee; display:none;"></div></div><div style="background: var(--bg); padding: 10px; border-radius: 5px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;"><label style="font-size:12px; font-weight:600;">Final Amount</label><input type="number" id="editFinalAmount" style="width: 120px; text-align:right; font-weight:bold;"></div></div><div style="text-align: right; margin-top: 15px;"><button class="btn btn-secondary" onclick="closeModal('editOrderModal')">Cancel</button><button class="btn" onclick="saveOrderEdits()">Save Changes (Sync Shopify)</button></div></div></div>
-        <div id="statusModal" class="modal"><div class="modal-box"><span class="modal-close" onclick="closeModal('statusModal')">&times;</span><h3 style="text-align:center; color:var(--primary);">Update Status</h3><input type="hidden" id="statusOrderId"><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox" value="Confirm" class="st-chk"> Confirm</label><label class="checkbox-item"><input type="checkbox" value="Dhanmondi" class="st-chk"> Dhanmondi</label><label class="checkbox-item"><input type="checkbox" value="Banani" class="st-chk"> Banani</label><label class="checkbox-item"><input type="checkbox" value="Uttara" class="st-chk"> Uttara</label><label class="checkbox-item"><input type="checkbox" value="Courier" class="st-chk"> Courier</label><label class="checkbox-item"><input type="checkbox" value="Paid" class="st-chk"> Paid</label><label class="checkbox-item"><input type="checkbox" value="Hold" class="st-chk"> Hold</label><hr style="width:100%; border:0; border-top:1px solid #eee;"><label class="checkbox-item"><input type="checkbox" value="Product Entry" id="chkProductEntry"> Product Entry (Invoice Required)</label><label class="checkbox-item"><input type="checkbox" value="Void" id="chkVoid"> Void (Will Cancel Order)</label></div><button class="btn" id="btnUpdateStatus" onclick="saveStatusUpdate()" style="width:100%">Update</button></div></div>
-        <div id="invoiceModal" class="modal"><div class="modal-box"><span class="modal-close" onclick="closeModal('invoiceModal')">&times;</span><h3 id="invModalTitle">Enter Invoice Number</h3><input type="hidden" id="invOrderId"><p style="font-size:12px; color:#666;">13 digits required</p><input type="text" id="invoiceInput" placeholder="0xxxxxxxxxxxx" maxlength="13" oninput="handleInvoiceInput(this)"><div id="invWarning" style="color:#d82c0d; font-size:12px; font-weight:600; margin-top:5px; display:none;">Wrong Invoice</div><div style="display:flex; gap:10px; margin-top:15px;"><button class="btn btn-danger" id="btnDeleteInv" onclick="deleteInvoice()" style="display:none; flex:1;">Delete</button><button class="btn" id="btnSaveInvoice" onclick="confirmInvoice()" style="flex:2;">Save</button></div></div></div>
-        <div id="fulfillModal" class="modal"><div class="modal-box"><span class="modal-close" onclick="closeModal('fulfillModal')">&times;</span><h3>Fulfill Order</h3><input type="hidden" id="fOrderId"><div class="form-group"><label>Tracking Number</label><input type="text" id="trackNum"></div><div class="form-group"><label>Tracking Link</label><input type="text" id="trackLink"></div><div style="text-align:right; margin-top:15px;"><button class="btn" id="btnConfirmFulfill" onclick="submitFulfillment()">Confirm</button></div></div></div>
-        <div id="noteModal" class="modal"><div class="modal-box"><span class="modal-close" onclick="closeModal('noteModal')">&times;</span><h3 id="noteTitle">Update Note</h3><input type="hidden" id="noteOrderId"><textarea id="noteInput" rows="4"></textarea><div style="display:flex; justify-content: space-between; margin-top:15px;"><button class="btn btn-danger" id="btnDeleteNote" onclick="deleteNote()">Delete</button><button class="btn" id="btnSaveNote" onclick="saveNote()">Save</button></div></div></div>
-        <div id="confirmModal" class="modal" style="z-index: 1200;"><div class="modal-box"><h3 style="margin-bottom: 10px;">Are you sure?</h3><p id="confirmMessage" style="color: #666; margin-bottom: 20px; font-size: 14px;">This action cannot be undone.</p><div style="display: flex; gap: 10px; justify-content: center;"><button class="btn btn-secondary" onclick="closeModal('confirmModal')">Cancel</button><button class="btn btn-danger" id="confirmBtnAction">Yes, Confirm</button></div></div></div>
-        <div id="imgPreview" class="img-preview" onclick="if(event.target === this) closeModal('imgPreview')"><span style="position:absolute; top:20px; right:20px; color:white; font-size:35px; cursor:pointer; z-index:2020;" onclick="closeModal('imgPreview')">&times;</span><div class="preview-content" onclick="closeModal('imgPreview')"><img id="previewImgSrc" src="" onclick="toggleSmartZoom(event); event.stopPropagation();"></div><div class="img-bottom-bar" onclick="event.stopPropagation()"><div><div class="img-caption-title" id="capTitle"></div><div class="img-caption-type" id="capType"></div><div style="font-size:11px; color:#ffeb3b; font-family:monospace;" id="capSku"></div><div id="capDesc" style="font-size:11px;"></div></div><button class="btn-inventory-toggle" onclick="toggleInventoryDrawer()">Inventory</button></div><div id="inventoryDrawer" class="inventory-drawer" onclick="event.stopPropagation()"><div style="padding:20px; border-bottom:1px solid #333; display:flex; justify-content:space-between; background:#252525;"><div style="color:#4effcd; font-weight:700;">Available Now</div><span style="color:#aaa; cursor:pointer; font-size:24px;" onclick="toggleInventoryDrawer()">&times;</span></div><div style="padding:20px; overflow-y:auto; flex:1;" id="inventoryList">Loading...</div></div></div>
-    </template>
+    </div>
 
-    <!-- INVENTORY TEMPLATE -->
-    <template id="inventory-template">
-        <div id="loginOverlay" class="fixed inset-0 z-[100] bg-gray-900 flex items-center justify-center p-4"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative"><div class="bg-green-600 h-2"></div><div class="p-8"><div class="text-center mb-8"><i class="fa-brands fa-shopify text-5xl text-green-600 mb-4"></i><h1 class="text-2xl font-bold text-gray-800">Store Login</h1><p class="text-sm text-gray-500">Access Live Shopify Inventory</p></div><div class="space-y-4"><select id="loginStoreSelect" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500"><option value="" disabled selected>Select Your Store</option><option value="admin">Admin</option><option value="dhanmondi">Dhanmondi Store</option><option value="banani">Banani Store</option><option value="uttara">Uttara Store</option></select><div id="passwordFieldWrapper" class="hidden"><input type="password" id="loginPassword" placeholder="Enter Store Password" class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-green-500"></div><button id="loginBtn" onclick="attemptLogin()" class="w-full bg-gray-900 text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center justify-center gap-2" disabled><span>Access Dashboard</span></button><p id="loginError" class="text-red-500 text-xs mt-2 hidden text-center">Incorrect password</p></div></div></div></div>
-        <div id="imagePreviewModal" class="fixed inset-0 z-[150] bg-black/95 hidden flex items-center justify-center p-4 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="closeImagePreview(event)"><button onclick="closeImagePreview(null, true)" class="absolute top-5 right-5 z-[160] text-white/80 hover:text-white bg-gray-800/50 hover:bg-gray-700/80 rounded-full w-10 h-10 flex items-center justify-center transition-all backdrop-blur-md border border-white/10 shadow-lg"><i class="fa-solid fa-times text-xl"></i></button><div class="relative max-w-5xl w-full max-h-screen flex flex-col items-center justify-center" onclick="event.stopPropagation()"><img id="previewImage" src="" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border border-gray-800"><h3 id="previewTitle" class="text-white/90 mt-4 text-lg font-medium text-center tracking-wide px-4"></h3></div></div>
-        <div class="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-200"><div class="max-w-7xl mx-auto px-3 py-3"><div class="flex justify-between items-start mb-3"><div class="flex items-center gap-2"><i class="fa-brands fa-shopify text-2xl text-green-600"></i><div><h1 class="font-bold text-base leading-tight text-gray-800">Store Manager</h1><p class="text-[10px] text-gray-500">Shopify Sync</p></div></div><div class="text-right flex items-center gap-3"><div id="adminBellContainer" class="notification-bell hidden"><i class="fa-solid fa-bell text-gray-600 text-lg hover:text-blue-600 transition-colors" onclick="toggleAdminNotifications()"></i><span id="adminBellDot" class="notification-dot"></span><div id="adminNotificationPopup" class="notification-popup"><div class="p-3 border-b border-gray-100 font-bold text-xs text-gray-500 bg-gray-50">RECENT ACTIVITY</div><div id="adminNotificationList" class="divide-y divide-gray-100"><div class="p-4 text-center text-xs text-gray-400">No recent updates</div></div></div></div><div><div class="flex items-center justify-end gap-1 text-green-700 font-bold text-sm uppercase tracking-wide"><i class="fa-solid fa-store text-xs"></i> <span id="displayStoreName">...</span></div><button onclick="logout()" class="text-[10px] text-red-500 font-bold hover:underline mt-0.5">LOGOUT <i class="fa-solid fa-right-from-bracket ml-0.5"></i></button></div></div></div><div class="flex items-center gap-2 w-full"><div class="custom-select-wrapper flex-1 min-w-0" id="customDropdown"><div class="custom-select-trigger" onclick="toggleDropdown()"><span id="dropdownSelectedText" class="truncate">Select Collection</span><i class="fa-solid fa-chevron-down text-xs text-gray-400 ml-2"></i></div><div class="custom-options shadow-xl" id="dropdownOptions"><div class="search-in-dropdown"><input type="text" id="dropdownSearchInput" placeholder="Search collection..." class="w-full text-xs p-2 border border-gray-200 rounded bg-gray-50 focus:outline-none focus:border-blue-500" onclick="event.stopPropagation()" oninput="filterDropdownOptions()"></div><div class="max-h-48 overflow-y-auto custom-scroll" id="dropdownListContainer"></div></div></div><button onclick="clearInvFilters()" class="bg-gray-100 hover:bg-gray-200 text-gray-600 w-9 h-9 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-300 transition-colors" title="Reset"><i class="fa-solid fa-rotate-left text-xs"></i></button><div class="relative flex-1 min-w-0"><i class="fa-solid fa-search absolute left-3 top-3 text-gray-400 text-xs"></i><input type="text" id="searchInput" placeholder="Search..." class="w-full pl-8 pr-3 py-2 bg-gray-50 border border-gray-300 rounded-lg text-xs font-medium focus:outline-none focus:border-green-500"></div></div></div></div>
-        <div class="max-w-full mx-auto px-4 py-4"><div id="statsBar" class="hidden flex justify-between items-center mb-4 max-w-7xl mx-auto"><h2 class="text-lg font-bold text-gray-700">Inventory</h2><div class="flex items-center gap-2"><select id="sortFilter" class="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-green-500 bg-white text-gray-700 h-8"><option value="STATUS_ACTIVE">Status: Active First</option><option value="CREATED_AT:true" selected>Date, new to old</option><option value="CREATED_AT:false">Date, old to new</option><option value="TITLE:false">Alphabetically, A-Z</option><option value="TITLE:true">Alphabetically, Z-A</option><option value="PRICE:false">Price, low to high</option><option value="PRICE:true">Price, high to low</option><option value="BEST_SELLING:false">Best selling</option><option value="MANUAL:false">Featured</option></select><div class="text-xs text-gray-500 bg-white px-2 py-1 rounded border h-8 flex items-center">Count: <span id="productCount" class="font-bold text-black ml-1">0</span></div></div></div><div id="adminBulkBar" class="hidden mb-4 p-3 bg-red-50 border border-red-100 rounded-lg flex justify-between items-center max-w-7xl mx-auto"><div class="flex items-center gap-3"><p class="text-xs font-bold text-red-600 uppercase"><i class="fa-solid fa-screwdriver-wrench mr-1"></i> Admin Tools</p><button onclick="autoSelectZeroStock()" class="text-[10px] bg-white border border-red-200 text-gray-700 px-3 py-1.5 rounded hover:bg-red-100 transition-colors font-semibold">1. Select Empty Active</button></div><button id="zeroDraftBtn" onclick="executeZeroDraft()" class="bg-red-600 text-white text-[10px] font-bold px-4 py-1.5 rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled>2. Zero Draft (<span id="selectedCount">0</span>)</button></div><div id="initialState" class="text-center py-24"><div class="bg-white p-8 rounded-2xl shadow-sm inline-block border border-gray-100 mx-4"><div class="text-green-600 text-5xl mb-4"><i class="fa-solid fa-boxes-stacked"></i></div><h2 class="text-xl font-bold text-gray-700 mb-2">Inventory Ready</h2><p class="text-sm text-gray-500">Select a collection or search to begin.</p></div></div><div id="loadingState" class="hidden text-center py-20"><div class="loader"></div><p id="loadingText" class="text-xs text-gray-500 mt-2">Loading...</p></div><div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 hidden"></div><div id="loadMoreContainer" class="hidden text-center mt-8 pb-10"><button onclick="loadMoreProducts()" class="bg-white border border-gray-300 text-gray-700 text-sm font-semibold px-6 py-2 rounded-full hover:bg-gray-50 shadow-sm transition-all">Load More <i class="fa-solid fa-arrow-down ml-1"></i></button></div><div id="emptyState" class="hidden text-center py-16"><div class="text-gray-300 text-4xl mb-2"><i class="fa-solid fa-box-open"></i></div><p class="text-sm text-gray-500">No results found.</p></div></div>
-        <div id="variantModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center backdrop-blur-sm p-4"><div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100 flex flex-col max-h-[90vh]"><div class="bg-gray-50 px-5 py-3 border-b flex justify-between items-center flex-shrink-0"><div><h3 class="font-bold text-base truncate max-w-[200px]" id="modalProductName">...</h3><p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider" id="modalStoreName">...</p></div><button id="modalCloseBtn" onclick="closeInvModal()" class="text-gray-400 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed transition-opacity"><i class="fa-solid fa-times text-lg"></i></button></div><div class="p-5 overflow-y-auto custom-scroll flex-grow" id="modalVariantsContainer"></div><div class="bg-gray-50 px-5 py-3 border-t flex justify-between items-center gap-2 flex-shrink-0"><button id="modalCancelBtn" onclick="closeInvModal()" class="px-3 py-2 text-xs font-medium text-gray-600 border border-gray-300 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity">Cancel</button><div class="flex gap-2"><button id="saveBtn" onclick="saveInventoryChanges('main')" class="px-4 py-2 bg-black text-white text-xs font-bold uppercase rounded hover:bg-gray-800 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"><span id="saveBtnText">Update</span></button></div></div></div></div>
-        <div id="confirmationModal" class="fixed inset-0 z-[210] bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform scale-100 animate-slide-down"><div class="p-6 text-center"><div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner"><i class="fa-solid fa-triangle-exclamation text-2xl"></i></div><h3 class="text-lg font-bold text-gray-800 mb-2">Are you sure?</h3><p id="confirmMsg" class="text-sm text-gray-600 mb-6">This action cannot be undone.</p><div class="flex gap-3"><button onclick="closeConfirmModal()" class="flex-1 py-2.5 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors">Cancel</button><button onclick="finalizeZeroDraft()" class="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-red-700 shadow-md transition-transform active:scale-95">Yes, Confirm</button></div></div></div></div>
-        <div id="invToast" class="fixed bottom-5 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg translate-y-20 opacity-0 transition-all duration-300 z-[60] flex items-center gap-2 text-xs whitespace-nowrap"><i class="fa-solid fa-circle-check text-green-400"></i> <span id="invToastMsg">Success</span></div>
-        <div id="errorModal" class="fixed inset-0 z-[200] bg-black/90 hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-xs text-center overflow-hidden transform scale-100 animate-slide-down border border-red-200"><div class="bg-red-50 p-6 border-b border-red-100"><div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner"><i class="fa-solid fa-triangle-exclamation text-3xl"></i></div><h2 class="text-xl font-bold text-red-600">Update Failed!</h2></div><div class="p-6"><button onclick="location.reload()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-lg transition-all transform active:scale-95 flex items-center justify-center gap-2"><i class="fa-solid fa-rotate-right"></i> OK, Refresh</button></div></div></div>
-    </template>
-
-    <!-- DRAFT APP TEMPLATE -->
-    <template id="draft-template">
-        <div id="ajax-loader-bar"><div class="bar-indeterminate"></div></div>
-        <div id="click-blocker"></div>
-        <div id="imageModal" class="custom-modal" onclick="this.style.display='none'"><span style="position:absolute;top:20px;right:20px;color:#fff;font-size:40px;cursor:pointer;background:rgba(0,0,0,0.3);width:40px;height:40px;line-height:35px;text-align:center;border-radius:50%;">&times;</span><img id="modalImg"></div>
-        <div id="draftConfirmModal" class="custom-modal"><div class="confirm-box"><h4 class="mb-3 fw-bold text-dark font-bold text-lg">Confirm</h4><p id="draftConfirmMessage" class="text-secondary mb-4 fs-6">Are you sure?</p><div class="flex justify-center gap-2"><button class="btn btn-secondary flex-grow" onclick="document.getElementById('draftConfirmModal').style.display='none'">Cancel</button><button id="draftConfirmYesBtn" class="btn flex-grow">Yes</button></div></div></div>
-        <div id="alertModal" class="custom-modal"><div class="confirm-box"><h4 id="alertTitle" class="mb-3 fw-bold text-dark font-bold text-lg">Notice</h4><p id="alertMessage" class="text-secondary mb-4 fs-6">...</p><button class="btn w-full" onclick="document.getElementById('alertModal').style.display='none'">OK</button></div></div>
-        <div class="w-full h-full flex flex-col">
-            <div class="sticky-header-wrapper px-4 pb-2">
-                <div class="flex justify-between items-center mb-2 p-2 bg-white shadow-sm rounded">
-                    <h5 class="m-0 font-bold text-gray-800">Draft Manager</h5>
-                    <div class="flex items-center gap-1">
-                        <button id="btnSaveInventory" class="bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold px-3 py-1 rounded shadow-sm hidden" onclick="draft_saveInventoryChanges()">💾 Save</button>
-                        <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3 py-1 rounded shadow-sm border border-white" onclick="draft_initDraftAllStore()">⚠️ All Draft</button>
-                    </div>
-                </div>
-                <div class="bg-white shadow-sm rounded p-3">
-                    <div class="flex flex-col md:flex-row gap-2 items-end">
-                        <div class="w-full md:w-5/12 space-y-2">
-                            <div class="flex gap-1"><input type="text" id="storeSearch" class="flex-grow px-3 py-1.5 text-sm border rounded" placeholder="Search Title, SKU..."><button class="btn btn-sm" onclick="draft_searchStore()">Search</button></div>
-                            <select id="collectionSelect" class="w-full px-3 py-1.5 text-sm border rounded" onchange="draft_loadProducts()"><option value="" selected disabled>-- Select Collection --</option></select>
-                        </div>
-                        <div class="w-full md:w-2/12"><label class="block text-xs font-bold text-gray-500 mb-1 hidden md:block">Sort</label><select id="sortSelect" class="w-full px-3 py-1.5 text-sm border rounded" onchange="draft_applySort()"><option value="title_asc">A-Z</option><option value="active_first">Active First</option><option value="draft_first">Draft First</option><option value="newest">Newest</option></select></div>
-                        <div class="w-full md:w-5/12 flex gap-1 justify-end items-end">
-                            <button class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded flex-grow" onclick="draft_initUpdateStatus('active')">Active</button>
-                            <button class="bg-gray-500 hover:bg-gray-600 text-white text-xs font-bold px-3 py-1.5 rounded flex-grow" onclick="draft_initUpdateStatus('draft')">Draft</button>
-                            <button class="border border-blue-500 text-blue-500 hover:bg-blue-50 text-xs font-bold px-3 py-1.5 rounded" onclick="draft_loadProducts()">↻</button>
-                        </div>
-                    </div>
-                    <div class="flex justify-between mt-2 items-center overflow-x-auto pb-1">
-                        <div class="text-xs flex items-center whitespace-nowrap gap-2">
-                            <span class="font-bold">Select:</span>
-                            <span class="helper-link text-blue-600" onclick="draft_selectByStatus('all')">All</span>
-                            <span class="helper-link text-green-600" onclick="draft_selectByStatus('active')">Active</span>
-                            <span class="helper-link text-gray-600" onclick="draft_selectByStatus('draft')">Draft</span>
-                            <span class="helper-link text-yellow-600 font-bold" onclick="draft_selectByStatus('draft_stock')">Has Stock</span>
-                            <span class="helper-link text-red-600" onclick="draft_selectByStatus('none')">None</span>
-                        </div>
-                        <div class="text-gray-500 text-xs ml-2">Total: <span id="productCount" class="text-gray-800 font-bold">0</span></div>
-                    </div>
-                </div>
-            </div>
-            <div class="flex-grow overflow-y-auto px-4 pb-12 mt-2">
-                <div class="bg-white shadow-sm rounded overflow-hidden">
-                    <table class="table w-full text-sm">
-                        <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="p-2 w-8"><input type="checkbox" id="draftSelectAll" onclick="draft_toggleSelectAll()"></th><th class="p-2 w-12">Image</th><th class="p-2 text-left">Title</th><th class="p-2">Inventory</th><th class="p-2">SKU</th><th class="p-2">Type</th><th class="p-2 text-center">Status</th></tr></thead>
-                        <tbody id="productTableBody"><tr><td colspan="7" class="text-center py-8 text-gray-400">Select collection to load.</td></tr></tbody>
-                    </table>
-                </div>
-            </div>
+    <!-- Draft -->
+    <div class="menu-row">
+        <div class="menu-item" onclick="loadApp('draft', 1)">
+            <i class="fa-solid fa-file-pen"></i> <span>Draft</span>
         </div>
-    </template>
+        <div class="split-controls">
+            <div class="control-btn" onclick="loadApp('draft', 1)">1</div>
+            <div class="control-btn" onclick="loadApp('draft', 2)">2</div>
+        </div>
+    </div>
+</div>
 
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        let isSplitMode = false, activePaneId = 'pane-1', sidebarOpen = false;
-        
-        // ORDERS VARS
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzEf-503JgVRQGLSaFFz8CHjSbJlmTX-UNnyjUiS6yyjk-JGqavucbmnnc_do9C69rb/exec"; 
-        let searchTimeout, allOrdersCache = [], nextPageCursor = "", prevPageCursor = "", pendingStatusUpdate = null, isNewCustomer = false, currentPreviewImages = [], currentPreviewIndex = 0, currentEditOrderItems = [], gl_images = {}, isVoiding = false, pendingConfirmAction = null, isEditingInvoice = false, scale = 1, pointX = 0, pointY = 0, startX = 0, startY = 0, panning = false;
+<!-- Content Wrapper with Two Frames -->
+<div class="content-wrapper">
+    <div class="app-loader" id="loader"></div>
+    
+    <!-- Frame 1 (Main/Top/Left) -->
+    <div id="frameContainer1" class="frame-container">
+        <iframe id="frame1" src="https://mirnasir007.github.io/PFF-Orders/"></iframe>
+    </div>
 
-        // INVENTORY VARS
-        const INV_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZLIADFPhsYJW8wABKi3CGBvoRklmMAD5QMZJVntCoJBeJVT7JCKQrZbJ7vehVZII/exec";
-        let inv_products = [], inv_collectionsList = [], inv_currentStore = null, inv_currentCollectionName = '', inv_currentEditingProductId = null, inv_searchDebounceTimer = null, inv_lastCursor = null, inv_hasMoreProducts = false, inv_selectedCollectionId = "", inv_notificationInterval = null;
+    <!-- Frame 2 (Secondary/Bottom/Right - Initially Hidden) -->
+    <div id="frameContainer2" class="frame-container hidden">
+        <div class="empty-screen-msg" id="emptyMsg">
+            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 24px; margin-bottom: 10px;"></i>
+            Select from Menu [2]
+        </div>
+        <iframe id="frame2" src="about:blank"></iframe>
+    </div>
+</div>
 
-        // DRAFT VARS
-        const DRAFT_API_URL = "https://script.google.com/macros/s/AKfycbzyfwn3QM5HTtkWACf7V6eto14AMrQmRG2zznKaEXyBNmCodqpuQuagVjhv2BweRhkMeg/exec";
-        let draft_globalProducts = [], draft_pendingInventory = {};
+<script>
+    // --- MANIFEST CONFIG (UNCHANGED) ---
+    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const themeColor = isDarkMode ? "#1f2937" : "#ffffff";
+    const bgColor = isDarkMode ? "#111827" : "#ffffff";
 
-        // --- MAIN APP ---
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebarOpen = !sidebarOpen;
-            if(sidebarOpen) { sidebar.classList.remove('-translate-x-full', 'lg:-ml-64'); if(window.innerWidth < 1024) overlay.classList.remove('hidden'); } 
-            else { sidebar.classList.add('-translate-x-full', 'lg:-ml-64'); overlay.classList.add('hidden'); }
-        }
-        document.getElementById('menu-btn').addEventListener('click', toggleSidebar);
+    const manifest = {
+        "name": "PFF PREMIUM",
+        "short_name": "PFF PREMIUM",
+        "start_url": window.location.href + "?v=3",
+        "id": "/?pff_premium_final_v3",
+        "display": "standalone", 
+        "background_color": bgColor,
+        "theme_color": themeColor,
+        "orientation": "portrait",
+        "icons": [
+            { "src": "logo.png", "sizes": "192x192", "type": "image/png" },
+            { "src": "logo.png", "sizes": "512x512", "type": "image/png" }
+        ]
+    };
 
-        function toggleTheme() {
-            const el = document.documentElement;
-            if (el.classList.contains('dark')) { el.classList.remove('dark'); localStorage.theme = 'light'; document.getElementById('theme-icon').classList.replace('ri-sun-line', 'ri-moon-line'); } 
-            else { el.classList.add('dark'); localStorage.theme = 'dark'; document.getElementById('theme-icon').classList.replace('ri-moon-line', 'ri-sun-line'); }
-        }
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').classList.replace('ri-moon-line', 'ri-sun-line'); }
+    const manifestBlob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+    document.querySelector('#my-manifest').setAttribute('href', URL.createObjectURL(manifestBlob));
 
-        function toggleSplitMode() {
-            isSplitMode = !isSplitMode; const btn = document.getElementById('split-btn'); const pane2 = document.getElementById('pane-2');
-            if (isSplitMode) { pane2.classList.remove('hidden'); btn.classList.add('bg-primary', 'text-white'); btn.classList.remove('bg-gray-200', 'dark:bg-gray-700'); } 
-            else { pane2.classList.add('hidden'); btn.classList.remove('bg-primary', 'text-white'); btn.classList.add('bg-gray-200', 'dark:bg-gray-700'); setActivePane(1); }
-        }
-        function setActivePane(paneNum) { activePaneId = `pane-${paneNum}`; const p1 = document.getElementById('pane-1'); const p2 = document.getElementById('pane-2'); if(paneNum === 1) { p1.classList.add('active-pane'); p2.classList.remove('active-pane'); } else { p2.classList.add('active-pane'); p1.classList.remove('active-pane'); } }
+    // --- LOGIC ---
+    const splash = document.getElementById("splash-screen");
+    const menu = document.getElementById("menu");
+    const backdrop = document.getElementById("menuBackdrop");
+    const loader = document.getElementById("loader");
+    const title = document.getElementById("pageTitle");
+    
+    // Split Screen Elements
+    const splitBtn = document.getElementById("splitToggleBtn");
+    const frameContainer1 = document.getElementById("frameContainer1");
+    const frameContainer2 = document.getElementById("frameContainer2");
+    const frame1 = document.getElementById("frame1");
+    const frame2 = document.getElementById("frame2");
+    const emptyMsg = document.getElementById("emptyMsg");
 
-        function loadContent(menuName) {
-            const targetPane = document.getElementById(activePaneId);
-            targetPane.className = targetPane.className.replace('orders-app', '').replace('inventory-app', '').replace('draft-app', '').trim();
-            targetPane.innerHTML = ''; 
-            if(menuName === 'Orders') {
-                const clone = document.getElementById('orders-template').content.cloneNode(true); targetPane.appendChild(clone); targetPane.classList.add('orders-app'); initOrders();
-            } else if(menuName === 'Inventory') {
-                const clone = document.getElementById('inventory-template').content.cloneNode(true); targetPane.appendChild(clone); targetPane.classList.add('inventory-app'); initInventory();
-            } else if(menuName === 'Draft') {
-                const clone = document.getElementById('draft-template').content.cloneNode(true); targetPane.appendChild(clone); targetPane.classList.add('draft-app'); initDraft();
-            } else { targetPane.innerHTML = `<div class="p-6 h-full flex flex-col items-center justify-center"><h2 class="text-2xl font-bold mb-4">Page: ${menuName}</h2></div>`; }
-            if(sidebarOpen) toggleSidebar();
-        }
+    let isSplitMode = false;
 
-        // --- ORDERS INIT ---
-        function initOrders() {
-            if(document.getElementById('mobileFilterBtn')) document.getElementById('mobileFilterBtn').addEventListener('click', function() { document.getElementById('filterOptions').classList.toggle('show'); });
-            const pImg = document.getElementById('previewImgSrc');
-            if(pImg) { pImg.addEventListener('mousedown', startPan); pImg.addEventListener('mousemove', panImage); pImg.addEventListener('mouseup', endPan); pImg.addEventListener('mouseleave', endPan); }
-            if(document.getElementById('confirmBtnAction')) document.getElementById('confirmBtnAction').onclick = function() { if(pendingConfirmAction) pendingConfirmAction(); closeModal('confirmModal'); };
-            applyFilters();
-        }
+    // Splash Logic
+    window.onload = () => {
+        setTimeout(() => {
+            splash.style.opacity = '0';
+            setTimeout(() => { splash.style.display = 'none'; }, 400);
+        }, 800);
+    };
 
-        // --- INVENTORY INIT ---
-        function initInventory() {
-            const savedStore = localStorage.getItem('storeUser');
-            if (savedStore) { inv_currentStore = savedStore; if(document.getElementById('displayStoreName')) document.getElementById('displayStoreName').innerText = inv_currentStore; if(document.getElementById('loginOverlay')) document.getElementById('loginOverlay').style.display = 'none'; loadInitialData(); }
-            if(document.getElementById('loginStoreSelect')) document.getElementById('loginStoreSelect').addEventListener('change', function() { if(this.value) { document.getElementById('passwordFieldWrapper').classList.remove('hidden'); document.getElementById('loginBtn').disabled = false; } });
-            if(document.getElementById('sortFilter')) document.getElementById('sortFilter').addEventListener('change', () => { const query = document.getElementById('searchInput').value; performSearch(query, inv_selectedCollectionId, null); });
-            if(document.getElementById('searchInput')) document.getElementById('searchInput').addEventListener('input', (e) => { clearTimeout(inv_searchDebounceTimer); const val = e.target.value; if (val.length > 2) { inv_lastCursor = null; inv_searchDebounceTimer = setTimeout(() => { performSearch(val, null); }, 600); } });
+    // Toggle Menu
+    function toggleMenu() {
+        if (menu.classList.contains("show")) {
+            menu.classList.remove("show");
+            backdrop.classList.remove("active");
+        } else {
+            menu.classList.add("show");
+            backdrop.classList.add("active");
         }
+    }
 
-        // --- DRAFT INIT ---
-        function initDraft() {
-            draft_fetchCollections();
-        }
+    // Toggle Split Mode
+    function toggleSplitMode() {
+        isSplitMode = !isSplitMode;
+        const controls = document.querySelectorAll('.split-controls');
 
-        // ======================== ORDERS LOGIC (Existing) ========================
-        function showLoading() { const bar = document.getElementById('loadingBar'); if(bar) { bar.classList.add('active'); bar.style.width = '30%'; } if(document.getElementById('paginationControls')) document.getElementById('paginationControls').style.display = 'none'; }
-        function hideLoading() { const bar = document.getElementById('loadingBar'); if(bar) { bar.style.width = '100%'; setTimeout(() => { bar.classList.remove('active'); bar.style.width = '0'; }, 300); } }
-        function debounceSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { applyFilters(); }, 600); }
-        async function applyFilters(cursor = "") {
-            showLoading();
-            let status = document.getElementById('statusFilter') ? document.getElementById('statusFilter').value : 'any';
-            let sid = document.getElementById('searchId') ? document.getElementById('searchId').value : '';
-            let dFrom = document.getElementById('dateFrom') ? document.getElementById('dateFrom').value : '';
-            let dTo = document.getElementById('dateTo') ? document.getElementById('dateTo').value : '';
-            let url = SCRIPT_URL + `?action=getOrders&status=${encodeURIComponent(status)}`;
-            if(sid) url += `&search=${encodeURIComponent(sid)}`; if(dFrom) url += `&dateFrom=${dFrom}`; if(dTo) url += `&dateTo=${dTo}`; if(cursor) url += `&page_info=${encodeURIComponent(cursor)}`;
-            try {
-                let res = await fetch(url); let data = await res.json(); hideLoading();
-                if(data.entryAmount !== undefined && document.getElementById('entryAmountDisplay')) document.getElementById('entryAmountDisplay').innerText = "Entry Amount: " + data.entryAmount.toLocaleString();
-                allOrdersCache = data.orders; renderNewOrders(data.orders, data.images, data.savedDetails);
-                nextPageCursor = data.nextPage || ""; prevPageCursor = data.prevPage || "";
-                if(document.getElementById('btnNext')) { document.getElementById('btnNext').onclick = () => applyFilters(nextPageCursor); document.getElementById('btnNext').disabled = !nextPageCursor; }
-                if(document.getElementById('btnPrev')) { document.getElementById('btnPrev').onclick = () => applyFilters(prevPageCursor); document.getElementById('btnPrev').disabled = !prevPageCursor; }
-                if(document.getElementById('paginationControls')) document.getElementById('paginationControls').style.display = 'flex';
-            } catch(e) { hideLoading(); showToast("Error loading data"); }
-        }
-        function renderNewOrders(orders, images, savedDetails) {
-            let container = document.getElementById('ordersContainer'); if(!container) return;
-            container.innerHTML = ''; gl_images = images;
-            if(!orders || orders.length === 0) { container.innerHTML = '<div style="padding:20px;text-align:center;">No orders found.</div>'; return; }
-            orders.forEach(order => {
-                let id = String(order.order_number); let saved = savedDetails[id]; let isListed = !!saved;
-                let statusBadge = ''; let isOrderVoid = false;
-                if (isListed) {
-                    let s = saved.status || "Pending";
-                    let sClass = s.toLowerCase().includes('product entry') ? 'status-product-entry' : s.toLowerCase().includes('courier') ? 'status-courier' : s.toLowerCase().includes('void') ? 'status-void' : 'status-pending';
-                    statusBadge = `<span class="status-badge ${sClass} clickable" onclick="openStatusModal('${id}', '${s}')">${s}</span>`;
-                    if(s.toLowerCase().includes('void')) isOrderVoid = true;
-                } else {
-                    let s = order.financial_status;
-                    let sClass = s === 'paid' ? 'status-paid' : (s === 'voided' ? 'status-voided' : 'status-pending');
-                    statusBadge = `<span class="status-badge ${sClass}">${s}</span>`;
-                    if(s === 'voided') isOrderVoid = true;
-                }
-                let addBtn = isListed ? '' : `<button class="btn btn-sm" onclick="openAddModal('${id}', '${new Date(order.created_at).toLocaleDateString()}', '${order.total_price}')">Add to List</button>`;
-                let productHtml = ''; let orderGallery = [];
-                if(order.line_items) {
-                    order.line_items.forEach(item => {
-                         let imgData = images[item.product_id]; let img = 'https://cdn.shopify.com/s/files/1/0533/2089/files/placeholder-images-image_large.png';
-                         let pType = '', pSku = item.sku || '';
-                         if(imgData) { if(typeof imgData === 'object') { img = imgData.src || img; pType = imgData.type || ''; pSku = imgData.sku || pSku; } else img = imgData; }
-                         let isRemoved = (item.quantity === 0 || (item.fulfillable_quantity === 0 && !item.fulfillment_status));
-                         if(isOrderVoid) isRemoved = true;
-                         orderGallery.push({src: img, title: item.title, variant: item.variant_title, price: item.price, type: pType, sku: pSku, pid: item.product_id});
-                         let idx = orderGallery.length - 1;
-                         productHtml += `<div class="p-item ${isRemoved?'removed':''}">${isRemoved ? '<div class="removed-badge">REMOVED</div>' : ''}<img src="${img}" class="p-img" onclick="showPreview(currentPreviewImages, ${idx}); currentPreviewImages = this.closest('.order-card').galleryData; showPreview(currentPreviewImages, ${idx}); event.stopPropagation();"><div style="font-weight:600;margin-top:3px;">${item.quantity}x</div><div class="variant-text">${item.variant_title || ''}</div><div class="price-text">${item.price}</div></div>`;
-                    });
-                }
-                let custHtml = '';
-                if (isListed) {
-                    custHtml = `<div class="customer-details-box"><div class="cust-name-row"><span>${saved.name}</span><span class="edit-icon" onclick="openEditCustomerModal('${id}', '${saved.name.replace(/'/g, "\\'")}', '${saved.phone}', '${saved.address.replace(/\n/g, '\\n').replace(/'/g, "\\'")}')">✎</span><span class="copy-icon" onclick="copyToClipboard('${saved.name}\\n${saved.phone}\\n${saved.address}')">📋</span></div><div class="cust-phone">${saved.phone}</div><div class="cust-addr">${saved.address}</div>${saved.note ? `<div class="saved-note" onclick="openNoteModal('${id}', decodeURIComponent('${encodeURIComponent(saved.note)}'))">Note: ${saved.note}</div>` : ''}</div>`;
-                }
-                let extraActions = '';
-                if (isListed && (saved.invoice || (saved.status && saved.status.toLowerCase().includes('product entry')))) { if (saved.invoice) extraActions += `<div style="margin-top:5px; font-size:12px; color:#008060; font-weight:bold; cursor:pointer;" onclick="openInvoiceModal('${id}', '${saved.invoice}', true)">Inv: ${saved.invoice} ✎</div>`; }
-                if (isListed && saved.status && saved.status.toLowerCase().includes('product entry') && !saved.status.toLowerCase().includes('courier')) { extraActions += `<button class="btn btn-sm" style="margin-top:5px;" onclick="openFulfillModal('${id}')">Fulfill</button>`; }
-                let noteBtn = isListed ? `<button class="btn-outline" style="margin-top:5px;" onclick="openNoteModal('${id}', decodeURIComponent('${encodeURIComponent(saved.note || '')}'))">${saved.note ? 'Edit Note' : 'Add Note'}</button>` : '';
-                let editBtn = isListed ? `<span class="btn-edit-order" onclick="openEditModal('${id}', ${saved.amount}, ${isOrderVoid})">Edit</span>` : '';
-                let card = `<div class="order-card" id="order-card-${id}"><div class="order-header"><div class="header-left"><div class="info-block"><div class="order-id">#${id} ${editBtn}</div><div class="order-date">${new Date(order.created_at).toLocaleDateString('en-GB')}</div></div>${custHtml}</div><div class="order-actions"><div class="price-tag">${order.total_price}</div>${addBtn} ${statusBadge} ${noteBtn} ${extraActions}</div></div><div class="product-grid">${productHtml}</div></div>`;
-                container.innerHTML += card;
-                setTimeout(() => { const el = document.getElementById(`order-card-${id}`); if(el) el.galleryData = orderGallery; }, 0);
-            });
-        }
-        function showPreview(images, idx) { currentPreviewImages = images; currentPreviewIndex = idx; scale = 1; pointX = 0; pointY = 0; updatePreviewContent(); document.getElementById('inventoryDrawer').classList.remove('open'); document.getElementById('inventoryList').innerHTML = 'Select a product to view inventory.'; document.getElementById('imgPreview').style.display = 'flex'; }
-        function updatePreviewContent() { const img = document.getElementById('previewImgSrc'); const data = currentPreviewImages[currentPreviewIndex]; if(!data) return; img.src = data.src || data; img.style.transform = "translate(0,0) scale(1)"; document.getElementById('capTitle').innerText = data.title || ''; document.getElementById('capType').innerText = data.type || ''; document.getElementById('capSku').innerText = data.sku ? `SKU: ${data.sku}` : ''; document.getElementById('capDesc').innerText = `${data.variant || ''} - ${data.price || ''}`; }
-        function toggleSmartZoom(e) { e.stopPropagation(); if (scale > 1) { scale = 1; pointX = 0; pointY = 0; } else { scale = 2.5; pointX = 0; pointY = 0; } updateTransform(); }
-        function updateTransform() { document.getElementById('previewImgSrc').style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`; }
-        function startPan(e) { if(scale <= 1) return; e.preventDefault(); panning = true; startX = e.clientX - pointX; startY = e.clientY - pointY; e.target.style.cursor = 'grabbing'; }
-        function endPan(e) { panning = false; e.target.style.cursor = scale > 1 ? 'grab' : 'zoom-in'; }
-        function panImage(e) { if (!panning || scale <= 1) return; e.preventDefault(); pointX = e.clientX - startX; pointY = e.clientY - startY; updateTransform(); }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        
-        // ... (Keep existing helpers: openAddModal, checkCustomer, saveToSheet, etc. from previous code) ...
-        // Re-implementing simplified versions for space, ensuring logic remains:
-        function openAddModal(id, date, amount) { document.getElementById('m_orderId').value=id; document.getElementById('m_orderDate').value=date; document.getElementById('m_amount').value=amount; document.getElementById('cNumber').value=''; document.getElementById('customerDetails').style.display='none'; document.getElementById('addModal').style.display='flex'; }
-        async function checkCustomer() { let num = document.getElementById('cNumber').value; if(num.length!==11) { document.getElementById('numWarning').innerText = "Invalid"; return; } try { let res = await fetch(`${SCRIPT_URL}?action=checkCustomer&phone=${num}`); let data = await res.json(); document.getElementById('customerDetails').style.display = 'block'; if(data.found) { document.getElementById('cName').value = data.name; document.getElementById('cAddress').value = data.address; isNewCustomer = false; document.getElementById('btnTriggerUpdate').style.display = 'block'; document.getElementById('btnUpdateData').style.display = 'none'; } else { document.getElementById('cName').value = ''; document.getElementById('cAddress').value = ''; isNewCustomer = true; document.getElementById('btnTriggerUpdate').style.display = 'none'; } } catch(e){} }
-        function enableUpdateMode() { document.getElementById('btnTriggerUpdate').style.display='none'; document.getElementById('btnUpdateData').style.display='inline-block'; document.getElementById('btnSave').style.display='none'; }
-        async function performCustomerUpdate() { try { let num = document.getElementById('cNumber').value; let name = document.getElementById('cName').value; let addr = document.getElementById('cAddress').value; await fetch(`${SCRIPT_URL}?action=updateCustomerOnly&cNumber=${num}&cName=${encodeURIComponent(name)}&cAddress=${encodeURIComponent(addr)}`); showToast("Updated"); document.getElementById('btnUpdateData').style.display='none'; document.getElementById('btnSave').style.display='inline-block'; } catch(e){} }
-        async function saveToSheet() { try { let p = { action: 'saveOrder', oID: document.getElementById('m_orderId').value, oDate: document.getElementById('m_orderDate').value, oAmount: document.getElementById('m_amount').value, cNumber: document.getElementById('cNumber').value, cName: document.getElementById('cName').value, cAddress: document.getElementById('cAddress').value, isNewCustomer: isNewCustomer }; await fetch(SCRIPT_URL + '?' + new URLSearchParams(p).toString()); showToast("Saved"); closeModal('addModal'); applyFilters(); } catch(e){} }
-        function openStatusModal(id, cur) { document.getElementById('statusOrderId').value=id; document.querySelectorAll('.st-chk').forEach(c=>c.checked=false); if(cur) cur.split(', ').forEach(s => { let el = document.querySelector(`.st-chk[value="${s}"]`); if(el) el.checked=true; }); document.getElementById('statusModal').style.display='flex'; }
-        async function saveStatusUpdate() { let id=document.getElementById('statusOrderId').value; let s=[]; document.querySelectorAll('.st-chk:checked').forEach(c=>s.push(c.value)); if(document.getElementById('chkVoid').checked) { closeModal('statusModal'); isVoiding=true; openNoteModal(id,''); return; } await updateSheet(id,'status',s.join(', ')); closeModal('statusModal'); }
-        async function updateSheet(id,t,v) { await fetch(`${SCRIPT_URL}?action=updateSheetOrder&oID=${id}&type=${t}&value=${encodeURIComponent(v)}`); showToast("Updated"); applyFilters(); }
-        function showToast(msg) { let x=document.getElementById("toast"); x.className="show"; x.innerText=msg; setTimeout(()=>{x.className=x.className.replace("show","")},3000); }
-        function copyToClipboard(txt) { const t=document.createElement("textarea"); t.value=txt; document.body.appendChild(t); t.select(); document.execCommand("copy"); document.body.removeChild(t); showToast("Copied"); }
-        function resetFilters() { document.getElementById('searchId').value=''; document.getElementById('statusFilter').value='any'; applyFilters(); }
-        function changePage(d){} 
-        function openNoteModal(id,n) { document.getElementById('noteOrderId').value=id; document.getElementById('noteInput').value=n; document.getElementById('noteModal').style.display='flex'; }
-        async function saveNote() { let id=document.getElementById('noteOrderId').value; let n=document.getElementById('noteInput').value; if(isVoiding) { await fetch(`${SCRIPT_URL}?action=cancelShopifyOrder&orderId=${id}&note=${encodeURIComponent(n)}`); isVoiding=false; } else await updateSheet(id,'note',n); closeModal('noteModal'); applyFilters(); }
-        async function deleteNote() { await updateSheet(document.getElementById('noteOrderId').value,'note',''); closeModal('noteModal'); }
-        function openInvoiceModal(id,v) { document.getElementById('invOrderId').value=id; document.getElementById('invoiceInput').value=v||''; document.getElementById('invoiceModal').style.display='flex'; }
-        function handleInvoiceInput(e) { if(e.value.length===13) e.style.borderColor='green'; else e.style.borderColor='red'; }
-        async function confirmInvoice() { let id=document.getElementById('invOrderId').value; let v=document.getElementById('invoiceInput').value; if(v.length!==13) return; if(pendingStatusUpdate) { let s=pendingStatusUpdate.statuses.join(', ')+", Product Entry"; await fetch(`${SCRIPT_URL}?action=updateSheetOrder&oID=${id}&type=status&value=${encodeURIComponent(s)}&invoice=${v}`); pendingStatusUpdate=null; } else await updateSheet(id,'invoice',v); closeModal('invoiceModal'); }
-        function deleteInvoice() { updateSheet(document.getElementById('invOrderId').value,'invoice','DELETE'); closeModal('invoiceModal'); }
-        function openEditCustomerModal(id,n,p,a) { document.getElementById('ec_orderId').value=id; document.getElementById('ec_name').value=n; document.getElementById('ec_phone').value=p; document.getElementById('ec_address').value=a; document.getElementById('editCustomerModal').style.display='flex'; }
-        async function saveOrderCustomerDetails() { let id=document.getElementById('ec_orderId').value; let n=document.getElementById('ec_name').value; let p=document.getElementById('ec_phone').value; let a=document.getElementById('ec_address').value; await fetch(`${SCRIPT_URL}?action=updateOrderCustomer&oID=${id}&name=${encodeURIComponent(n)}&phone=${encodeURIComponent(p)}&address=${encodeURIComponent(a)}`); showToast("Updated"); closeModal('editCustomerModal'); applyFilters(); }
-        
-        // ======================== INVENTORY LOGIC (Existing) ========================
-        async function attemptLogin() {
-            const store = document.getElementById('loginStoreSelect').value; const pass = document.getElementById('loginPassword').value;
-            const res = await fetch(INV_WEB_APP_URL, {method:'POST', body:JSON.stringify({action:'login', store:store, password:pass})});
-            const data = await res.json();
-            if(data.status==='success') { localStorage.setItem('storeUser', store); inv_currentStore=store; document.getElementById('displayStoreName').innerText=store; document.getElementById('loginOverlay').style.display='none'; loadInitialData(); }
-            else { document.getElementById('loginError').classList.remove('hidden'); }
-        }
-        function logout() { localStorage.removeItem('storeUser'); location.reload(); }
-        async function loadInitialData() { toggleInvLoading(true); try { await fetchData(); if(inv_notificationInterval) clearInterval(inv_notificationInterval); inv_notificationInterval=setInterval(fetchNotificationsOnly, 30000); } catch(e){ toggleInvLoading(false); } }
-        async function fetchData() {
-            const res = await fetch(`${INV_WEB_APP_URL}?action=getInitialData&store=${inv_currentStore}`); const data = await res.json();
-            if(data.status==='success') { inv_collectionsList=data.collections.sort((a,b)=>a.title.localeCompare(b.title)); populateCustomDropdown(inv_collectionsList); handleNotifications(data.notifications); document.getElementById('initialState').classList.remove('hidden'); document.getElementById('loadingState').classList.add('hidden'); }
-        }
-        async function fetchNotificationsOnly() { try { const res = await fetch(`${INV_WEB_APP_URL}?action=getInitialData&store=${inv_currentStore}`); const data=await res.json(); if(data.status==='success') handleNotifications(data.notifications); } catch(e){} }
-        function handleNotifications(n) { const b=document.getElementById('adminBellContainer'); if(b) b.classList.remove('hidden'); if(n.length>0) { document.getElementById('adminBellDot').style.display='block'; let h=''; n.forEach(x=>{h+=`<div class="p-3 hover:bg-gray-50 border-b border-gray-50"><p class="text-xs">${x.msg}</p></div>`}); document.getElementById('adminNotificationList').innerHTML=h; } }
-        function toggleAdminNotifications() { document.getElementById('adminNotificationPopup').classList.toggle('open'); }
-        async function performSearch(q, c, cursor) {
-            toggleInvLoading(true, "Searching..."); let url=`${INV_WEB_APP_URL}?action=searchProducts`; if(q) url+=`&query=${encodeURIComponent(q)}`; if(c) url+=`&collectionId=${encodeURIComponent(c)}`; if(cursor) url+=`&cursor=${encodeURIComponent(cursor)}`;
-            try { const res=await fetch(url); const data=await res.json(); if(data.status==='success') { if(cursor) inv_products=inv_products.concat(data.products); else inv_products=data.products; inv_lastCursor=data.pageInfo.endCursor; inv_hasMoreProducts=data.pageInfo.hasNextPage; renderProducts(); } } finally { toggleInvLoading(false); }
-        }
-        function populateCustomDropdown(l) { const c=document.getElementById('dropdownListContainer'); if(!c) return; c.innerHTML='<div class="option" onclick="selectCollection(\'\', \'Select Collection\')">All Collections</div>'; l.forEach(x=>{ let d=document.createElement('div'); d.className='option'; d.innerText=x.title; d.onclick=()=>selectCollection(x.id, x.title); c.appendChild(d); }); }
-        function toggleDropdown() { document.getElementById('dropdownOptions').classList.toggle('open'); }
-        function filterDropdownOptions() { const f=document.getElementById('dropdownSearchInput').value.toLowerCase(); document.querySelectorAll('.custom-options .option').forEach(o=>{o.style.display=o.innerText.toLowerCase().includes(f)?"":"none"}); }
-        function selectCollection(id, t) { inv_selectedCollectionId=id; document.getElementById('dropdownSelectedText').innerText=t; document.getElementById('dropdownOptions').classList.remove('open'); inv_lastCursor=null; if(id) performSearch(null,id); else clearInvFilters(); }
-        function clearInvFilters() { document.getElementById('searchInput').value=''; inv_selectedCollectionId=''; inv_products=[]; document.getElementById('productGrid').classList.add('hidden'); document.getElementById('initialState').classList.remove('hidden'); showInvToast("Reset"); }
-        function loadMoreProducts() { if(inv_hasMoreProducts) performSearch(document.getElementById('searchInput').value, inv_selectedCollectionId, inv_lastCursor); }
-        function toggleInvLoading(show, txt) { const l=document.getElementById('loadingState'); const g=document.getElementById('productGrid'); const i=document.getElementById('initialState'); if(show) { l.classList.remove('hidden'); if(!inv_lastCursor) { g.classList.add('hidden'); i.classList.add('hidden'); } } else { l.classList.add('hidden'); g.classList.remove('hidden'); } }
-        function renderProducts() {
-            const g=document.getElementById('productGrid'); g.innerHTML=''; if(inv_products.length===0) { document.getElementById('emptyState').classList.remove('hidden'); return; } document.getElementById('emptyState').classList.add('hidden');
-            inv_products.forEach(p=>{
-                let info=getProductStatus(p); let vHtml=''; if(p.variants.length>0) { vHtml='<div class="flex flex-wrap gap-1 mt-1.5">'; p.variants.forEach(v=>{ let s=0; if(inv_currentStore==='admin') s=v.actualShopifyStock||0; else s=(v.inventory&&v.inventory[inv_currentStore])?v.inventory[inv_currentStore]:0; let col=s>0?'text-gray-700 bg-gray-100':'text-gray-400 bg-gray-50'; vHtml+=`<span class="text-[10px] px-1.5 py-0.5 rounded border border-gray-100 ${col}">${v.title.substring(0,10)}: ${s}</span>`; }); vHtml+='</div>'; }
-                let check=''; if(inv_currentStore==='admin') check=`<div class="absolute top-2 left-2 z-10" onclick="event.stopPropagation()"><input type="checkbox" class="bulk-check w-5 h-5" data-id="${p.id}" data-status="${info.status}" onchange="updateBulkCount()"></div>`;
-                g.innerHTML+=`<div class="product-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow flex flex-col h-full relative">${check}<div class="retro-img-container relative" onclick="openImagePreview('${p.image}', '${p.title.replace(/'/g,"\\'")}')"><img src="${p.image}" class="retro-img" onerror="this.src='https://via.placeholder.com/300'"><div class="absolute top-2 right-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase ${info.colorClass}">${info.status}</div></div><div class="p-3 flex flex-col flex-grow"><h3 class="font-bold text-gray-800 text-sm mb-2 line-clamp-2">${p.title}</h3><div class="mt-auto"><p class="text-xs text-gray-500 font-semibold">Total: ${info.totalStock}</p>${vHtml}<div class="mt-3 pt-3 border-t"><button onclick="openModal('${p.id}')" class="w-full bg-gray-900 text-white text-xs font-bold py-2 rounded">Manage</button></div></div></div></div>`;
-            });
-        }
-        function getProductStatus(p) { let s=p.status?p.status.toUpperCase():'DRAFT'; let t=0; p.variants.forEach(v=>{ if(inv_currentStore==='admin') t+=(v.actualShopifyStock||0); else t+=(v.inventory&&v.inventory[inv_currentStore]?v.inventory[inv_currentStore]:0); }); return {totalStock:t, status:s, colorClass:s==='ACTIVE'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-500'}; }
-        function openModal(pid) { inv_currentEditingProductId=pid; const p=inv_products.find(x=>x.id==pid); document.getElementById('modalProductName').innerText=p.title; let h=''; p.variants.forEach(v=>{ let s=v.inventory[inv_currentStore]||0; h+=`<div class="bg-gray-50 p-3 rounded-lg mb-3 flex justify-between items-center"><div><p class="font-semibold text-xs">${v.title}</p><p class="text-[10px] text-gray-400">${v.sku}</p></div><div class="flex items-center gap-2"><button onclick="adjustInput('input-${v.id}',-1)" class="w-7 h-7 bg-white rounded-full border">-</button><input id="input-${v.id}" value="${s}" class="main-input w-12 text-center border rounded" data-variant-id="${v.id}" data-inventory-item-id="${v.inventoryItemId}"><button onclick="adjustInput('input-${v.id}',1)" class="w-7 h-7 bg-black text-white rounded-full">+</button></div></div>`; }); document.getElementById('modalVariantsContainer').innerHTML=h; document.getElementById('variantModal').classList.remove('hidden'); }
-        function closeInvModal() { document.getElementById('variantModal').classList.add('hidden'); inv_currentEditingProductId=null; }
-        
-        // ======================== DRAFT APP LOGIC ========================
-        function draft_showLoader(show) { document.getElementById('ajax-loader-bar').style.display = show?'block':'none'; document.getElementById('click-blocker').style.display = show?'block':'none'; }
-        function draft_showCustomAlert(msg, title="Notice") { document.getElementById('alertTitle').innerText = title; document.getElementById('alertMessage').innerText = msg; document.getElementById('alertModal').style.display = 'flex'; }
-        
-        async function draft_callAPI(action, payload={}) {
-            try {
-                const res = await fetch(DRAFT_API_URL, { method: "POST", body: JSON.stringify({ action, ...payload }), headers: { "Content-Type": "text/plain" } });
-                return await res.json();
-            } catch(e) { draft_showCustomAlert("Error: " + e.message); return { error: true }; }
-        }
-
-        async function draft_fetchCollections() {
-            const res = await draft_callAPI('getCollections');
-            if (res.success) {
-                const sel = document.getElementById('collectionSelect');
-                if(!sel) return;
-                sel.innerHTML = '<option value="" selected disabled>-- Select Collection --</option>';
-                res.collections.forEach(c => { const opt = document.createElement('option'); opt.value = c.id; opt.text = c.title; sel.appendChild(opt); });
-            }
-        }
-
-        async function draft_searchStore() {
-            const query = document.getElementById('storeSearch').value;
-            if(!query) return draft_showCustomAlert("Please enter text.");
-            draft_showLoader(true);
-            const res = await draft_callAPI('searchStore', { query: query });
-            if (res.success) { draft_globalProducts = res.products; draft_applySort(); }
-            draft_showLoader(false);
-        }
-
-        async function draft_loadProducts() {
-            const cid = document.getElementById('collectionSelect').value;
-            if(!cid) return;
-            draft_showLoader(true);
-            const res = await draft_callAPI('getProducts', { collectionId: cid });
-            if (res.success) { draft_globalProducts = res.products; draft_applySort(); }
-            draft_showLoader(false);
-        }
-
-        function draft_applySort() {
-            const mode = document.getElementById('sortSelect').value;
-            let sorted = [...draft_globalProducts];
-            if(mode === 'title_asc') sorted.sort((a,b) => a.title.localeCompare(b.title));
-            else if (mode === 'active_first') sorted.sort((a,b) => (a.status === b.status) ? 0 : (a.status === 'active' ? -1 : 1));
-            else if (mode === 'draft_first') sorted.sort((a,b) => (a.status === b.status) ? 0 : (a.status === 'draft' ? -1 : 1));
-            else if (mode === 'newest') if(sorted[0] && sorted[0].created_at) sorted.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-            draft_renderProducts(sorted);
-        }
-
-        function draft_renderProducts(products) {
-            const tbody = document.getElementById('productTableBody');
-            document.getElementById('productCount').innerText = products.length;
-            if(products.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-gray-400">No products.</td></tr>`; return; }
+        if (isSplitMode) {
+            // Enable Split
+            frameContainer2.classList.remove("hidden");
+            splitBtn.classList.add("active");
+            splitBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Close';
             
-            tbody.innerHTML = products.map(p => {
-                let statusClass = p.status === 'active' ? 'status-active' : 'status-draft';
-                let imgSrc = p.image ? p.image.src : 'https://placehold.co/50';
-                let invHtml = '<div class="inv-grid-container">';
-                if(p.variants) { p.variants.forEach(v => { invHtml += `<div class="inv-item"><span class="inv-label">${v.title}</span><input type="number" class="inv-input" value="${v.inventory_quantity}" onchange="draft_trackInv(this, '${v.inventory_item_id}')"></div>`; }); }
-                invHtml += '</div>';
-                return `<tr><td class="text-center p-2"><input type="checkbox" class="product-check w-4 h-4 rounded border-gray-300" value="${p.id}"></td><td class="text-center p-2"><img src="${imgSrc}" class="product-img" onclick="draft_viewImage('${imgSrc}')"></td><td class="font-bold text-xs p-2">${p.title}</td><td class="p-2">${invHtml}</td><td class="text-xs font-mono text-gray-500 p-2">${p.variants[0]?.sku || '-'}</td><td class="text-xs text-gray-500 p-2">${p.product_type || '-'}</td><td class="text-center p-2"><span class="${statusClass}">${p.status.toUpperCase()}</span></td></tr>`;
-            }).join('');
+            // Show 1/2 buttons in menu
+            controls.forEach(el => el.style.display = 'flex');
+        } else {
+            // Disable Split
+            frameContainer2.classList.add("hidden");
+            splitBtn.classList.remove("active");
+            splitBtn.innerHTML = '<i class="fa-solid fa-columns"></i> Split';
+            
+            // Hide 1/2 buttons
+            controls.forEach(el => el.style.display = 'none');
+        }
+    }
+
+    // Load App Logic
+    function loadApp(type, frameId) {
+        // Determine URL based on type
+        let url = "";
+        let pageName = "";
+        
+        if (type === "orders") {
+            url = "https://mirnasir007.github.io/PFF-Orders/";
+            pageName = "Orders";
+        } else if (type === "inventory") {
+            url = "https://mirnasir007.github.io/website-inventory/";
+            pageName = "Inventory";
+        } else if (type === "draft") {
+            url = "https://mirnasir007.github.io/Draft/";
+            pageName = "Draft";
         }
 
-        function draft_trackInv(el, iid) { el.classList.add('inv-dirty'); draft_pendingInventory[iid] = el.value; document.getElementById('btnSaveInventory').style.display = 'inline-block'; }
-        async function draft_saveInventoryChanges() {
-            const updates = Object.keys(draft_pendingInventory).map(iid => ({ inventoryItemId: iid, quantity: draft_pendingInventory[iid] }));
-            draft_showLoader(true);
-            const res = await draft_callAPI('updateInventory', { updates: updates });
-            if(res.success) { draft_showCustomAlert("Inventory Saved!"); draft_pendingInventory = {}; document.getElementById('btnSaveInventory').style.display = 'none'; document.querySelectorAll('.inv-dirty').forEach(el => el.classList.remove('inv-dirty')); } 
-            else { draft_showCustomAlert("Failed: " + (res.message || "")); }
-            draft_showLoader(false);
+        // Handle Frame Logic
+        const targetFrame = (frameId === 2) ? frame2 : frame1;
+
+        // If standard click (frameId 1)
+        if (frameId === 1) {
+            title.innerText = pageName;
+            toggleMenu();
         }
 
-        function draft_initUpdateStatus(status) {
-            const count = document.querySelectorAll('.product-check:checked').length;
-            if(count === 0) return draft_showCustomAlert("Select products first.");
-            let msg = `Set ${count} to ${status.toUpperCase()}?`;
-            if (status === 'draft') msg += "\n\n⚠️ Inv will be 0!";
-            draft_showConfirm(msg, () => draft_updateStatus(status));
+        // If loading to secondary frame (frameId 2)
+        if (frameId === 2) {
+            emptyMsg.style.display = 'none';
+            toggleMenu();
         }
 
-        async function draft_updateStatus(newStatus) {
-            const ids = Array.from(document.querySelectorAll('.product-check:checked')).map(cb => cb.value);
-            draft_showLoader(true);
-            const res = await draft_callAPI('updateStatus', { ids: ids, status: newStatus });
-            if (res.success) {
-                draft_showCustomAlert("Updated!");
-                if(newStatus === 'draft') { const q = document.getElementById('storeSearch').value; if(q) draft_searchStore(); else draft_loadProducts(); } 
-                else { draft_globalProducts.forEach(p => { if(ids.includes(p.id)) p.status = newStatus; }); draft_applySort(); }
-            }
-            draft_showLoader(false);
-        }
+        // Show loader briefly
+        loader.style.display = "block";
+        targetFrame.style.opacity = "0.3";
 
-        function draft_initDraftAllStore() { draft_showConfirm("⚠️ DANGER: Set ALL ACTIVE products to DRAFT & INV 0?", async () => { draft_showLoader(true); await draft_callAPI('draftAllStore'); draft_showCustomAlert("Done."); draft_showLoader(false); }); }
-        function draft_viewImage(src) { document.getElementById('modalImg').src = src; document.getElementById('imageModal').style.display = 'flex'; }
-        function draft_toggleSelectAll() { const c = document.getElementById('draftSelectAll').checked; document.querySelectorAll('.product-check').forEach(cb => cb.checked = c); }
-        function draft_selectByStatus(type) {
-            document.querySelectorAll('.product-check').forEach(cb => {
-                const p = draft_globalProducts.find(item => item.id == cb.value);
-                if(!p) return;
-                const isDraft = p.status === 'draft'; const isActive = p.status === 'active'; const hasStock = p.variants && p.variants.some(v => parseInt(v.inventory_quantity) > 0);
-                cb.checked = false;
-                if (type === 'all') cb.checked = true; else if (type === 'active' && isActive) cb.checked = true; else if (type === 'draft' && isDraft) cb.checked = true; else if (type === 'draft_stock' && isDraft && hasStock) cb.checked = true;
-            });
-        }
-        function draft_showConfirm(msg, cb) { const m = document.getElementById('draftConfirmModal'); document.getElementById('draftConfirmMessage').innerText = msg; document.getElementById('draftConfirmYesBtn').onclick = () => { m.style.display='none'; cb(); }; m.style.display = 'flex'; }
+        setTimeout(() => {
+            targetFrame.src = url;
+        }, 100);
+    }
 
-        // --- INIT DEFAULT ---
-        window.onload = function() { loadContent('Orders'); };
-    </script>
+    // Loader handling for both frames
+    frame1.onload = () => {
+        loader.style.display = "none";
+        frame1.style.opacity = "1";
+    };
+    frame2.onload = () => {
+        loader.style.display = "none";
+        frame2.style.opacity = "1";
+    };
+</script>
+
 </body>
 </html>
