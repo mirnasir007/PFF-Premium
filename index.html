@@ -141,11 +141,13 @@
     .frame-container {
         flex: 1;
         height: 100%;
+        width: 100%;
         position: relative;
         transition: all 0.3s ease;
         border-right: 1px solid var(--border-color); /* Divider for desktop */
         border-bottom: none;
-        overflow: hidden;
+        overflow-x: auto;
+        overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
     }
     .frame-container:last-child { border-right: none; }
